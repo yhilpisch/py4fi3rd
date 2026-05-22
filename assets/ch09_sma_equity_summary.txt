@@ -1,0 +1,1 @@
+As of the end of the sample, the SMA strategy reaches an equity of 2.322, compared to 3.869 for buy-and-hold in SPY.

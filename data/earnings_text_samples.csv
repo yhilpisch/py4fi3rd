@@ -1,0 +1,14 @@
+ticker,report_date,source,text
+AAPL,2026-01-29,earnings_release,"Apple reported revenue above consensus,
+led by services and wearables. Management flagged foreign-exchange headwinds
+and softer demand in parts of Greater China."
+MSFT,2026-01-28,headline_bundle,"Microsoft delivered revenue slightly above
+expectations. Azure growth slowed modestly, but margins stayed strong and
+management highlighted AI infrastructure demand."
+TSLA,2026-01-27,earnings_release,"Tesla reported automotive revenue below
+expectations and announced additional price pressure. Management emphasized
+energy storage progress but warned that vehicle margins could stay under
+pressure."
+JPM,2026-01-14,earnings_release,"JPMorgan posted better-than-expected net
+interest income and solid trading revenue. Management modestly raised its
+outlook but flagged consumer credit as an area to monitor."

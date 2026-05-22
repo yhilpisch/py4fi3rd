@@ -1,0 +1,56 @@
+[
+  {
+    "ticker": "AAPL",
+    "report_date": "2026-01-29",
+    "summary": "Revenue beat expectations, driven by services and wearables.",
+    "surprise_direction": "positive",
+    "guidance_change": "unclear",
+    "main_positive_driver": "services and wearables growth",
+    "main_negative_driver": "foreign-exchange headwinds and weaker demand",
+    "risk_flags": [
+      "foreign_exchange",
+      "greater_china_demand"
+    ],
+    "confidence_note": "fairly explicit"
+  },
+  {
+    "ticker": "MSFT",
+    "report_date": "2026-01-28",
+    "summary": "Results were modestly ahead, with strong margins.",
+    "surprise_direction": "slightly_positive",
+    "guidance_change": "unchanged",
+    "main_positive_driver": "strong margins and AI infrastructure demand",
+    "main_negative_driver": "slower Azure growth",
+    "risk_flags": [
+      "cloud_growth_slowdown"
+    ],
+    "confidence_note": "fairly explicit"
+  },
+  {
+    "ticker": "TSLA",
+    "report_date": "2026-01-27",
+    "summary": "Automotive revenue missed; margins stayed under pressure.",
+    "surprise_direction": "negative",
+    "guidance_change": "softer_margin_outlook",
+    "main_positive_driver": "energy storage and software progress",
+    "main_negative_driver": "pricing pressure and weaker vehicle margins",
+    "risk_flags": [
+      "margin_pressure",
+      "pricing_pressure"
+    ],
+    "confidence_note": "fairly explicit"
+  },
+  {
+    "ticker": "JPM",
+    "report_date": "2026-01-14",
+    "summary": "Net interest income and trading revenue beat expectations.",
+    "surprise_direction": "positive",
+    "guidance_change": "modestly_raised",
+    "main_positive_driver": "net interest income and trading revenue",
+    "main_negative_driver": "consumer credit risk if macro conditions weaken",
+    "risk_flags": [
+      "consumer_credit"
+    ],
+    "confidence_note": "fairly explicit"
+  }
+]
