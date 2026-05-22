@@ -1,4 +1,5 @@
 <img src="https://hilpisch.com/tpq_logo_bic.png" width="25%" align="right">
+<br clear="all">
 
 # Python for Finance, Third Edition · Companion Code and Notebooks
 
@@ -8,6 +9,7 @@ one place to run the chapter examples, explore the notebooks interactively, and
 adapt the reusable packages and scripts for their own study and experiments.
 
 <img src="https://hilpisch.com/py4fi_3rd_cover_bw.png" width="30%" align="left">
+<br clear="all">
 
 ## Layout
 
