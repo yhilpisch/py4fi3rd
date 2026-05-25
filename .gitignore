@@ -37,6 +37,9 @@ htmlcov/
 # Jupyter
 .ipynb_checkpoints/
 
+# Generated figure and report output
+assets/
+
 # macOS
 .DS_Store
 .DS_Store?
@@ -83,4 +86,3 @@ temp/
 *.bz2
 *.xz
 *.7z
-

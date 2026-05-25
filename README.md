@@ -3,10 +3,10 @@
 
 # Python for Finance, Third Edition · Companion Code and Notebooks
 
-This repository contains the companion code, notebooks, data sets, and figure
-assets for *Python for Finance, Third Edition*. It is designed to give readers
-one place to run the chapter examples, explore the notebooks interactively, and
-adapt the reusable packages and scripts for their own study and experiments.
+This repository contains the companion code, notebooks, and data sets for
+*Python for Finance, Third Edition*. It is designed to give readers one place
+to run the chapter examples, explore the notebooks interactively, and adapt the
+reusable packages and scripts for their own study and experiments.
 
 <img src="https://hilpisch.com/py4fi_3rd_cover_bw.png" width="30%" align="left">
 <br clear="all">
@@ -23,8 +23,6 @@ adapt the reusable packages and scripts for their own study and experiments.
   - lab notebooks
 - `data/`
   - CSV and JSON datasets used by the examples
-- `assets/`
-  - figure exports and other shared assets referenced by code and notebooks
 - `tools/`
   - validation helpers for checking scripts and notebooks
 
@@ -36,7 +34,10 @@ Set `PYTHONPATH` from the repository root when you want to import the local pack
 export PYTHONPATH="$PWD/code"
 ```
 
-Run scripts and notebooks from the repository root so the relative paths to `data/` and `assets/` resolve correctly.
+Run scripts and notebooks from the repository root so relative paths to `data/`
+resolve correctly. Some figure scripts may write local output under `assets/`;
+that directory is intentionally excluded from version control in this companion
+repo.
 
 ## Validation
 
