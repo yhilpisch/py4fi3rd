@@ -11,7 +11,6 @@ https://hilpisch.com | https://linktr.ee/dyjh
 
 from __future__ import annotations
 
-import math
 import sys
 from dataclasses import dataclass
 from pathlib import Path

@@ -125,7 +125,7 @@ def main() -> None:
     cbar = fig.colorbar(contour, ax=ax)
     cbar.set_label("Class 1 probability (MLP)")
 
-    scatter = ax.scatter(
+    ax.scatter(
         X_test[:, 0],
         X_test[:, 1],
         c=y_test,

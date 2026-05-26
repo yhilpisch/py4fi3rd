@@ -144,6 +144,7 @@ def main() -> None:
     )
     fig.tight_layout()
     fig.savefig(OUT_PATH, dpi=DPI)
+    plt.close(fig)
 
 
 if __name__ == "__main__":

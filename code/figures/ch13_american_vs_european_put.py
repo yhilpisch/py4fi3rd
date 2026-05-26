@@ -43,7 +43,6 @@ def lsm_american_put(
 ) -> float:
     """Least-Squares Monte Carlo American put on a GBM underlying."""
     dt = T / n_steps
-    discounts = np.exp(-r * dt * np.arange(n_steps + 1))
     shocks = rng.standard_normal((n_steps, n_paths))
     log_returns = (r - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * shocks
     log_paths = np.vstack([np.zeros(n_paths), log_returns.cumsum(axis=0)])

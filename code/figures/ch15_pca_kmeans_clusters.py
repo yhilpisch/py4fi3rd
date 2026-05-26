@@ -15,7 +15,6 @@ import pathlib
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.datasets import make_blobs
@@ -48,7 +47,7 @@ def main() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(9.5, 4.0))
 
     ax = axes[0]
-    scatter0 = ax.scatter(
+    ax.scatter(
         X[:, 0],
         X[:, 1],
         c=labels,
@@ -64,7 +63,7 @@ def main() -> None:
     ax.grid(True, linestyle="--", alpha=0.3)
 
     ax = axes[1]
-    scatter1 = ax.scatter(
+    ax.scatter(
         X_pca[:, 0],
         X_pca[:, 1],
         c=labels,

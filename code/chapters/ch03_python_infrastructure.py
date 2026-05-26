@@ -48,6 +48,9 @@ def main() -> None:
     print("Python version:   ", info.python_version)
     print("Platform:         ", info.platform)
 
+    assert info.python_version, "version must not be empty"
+    assert info.python_executable, "executable path must not be empty"
+
 
 if __name__ == "__main__":
     main()

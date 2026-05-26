@@ -31,7 +31,6 @@ def main() -> None:
     )
 
     rng = np.random.default_rng(seed=2027)
-    s0 = 100.0
     r = 0.02
     sigma = 0.2
     T = 1.0

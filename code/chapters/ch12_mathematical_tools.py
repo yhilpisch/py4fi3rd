@@ -222,7 +222,9 @@ def main() -> None:
     print(optimize_objective())
     print(integrate_normal_density())
     print(black_scholes_integral_call(100.0, 100.0, 0.02, 0.2, 1.0))
-    print(symbolic_zero_coupon_yield())
+    yield_val = symbolic_zero_coupon_yield()
+    print(yield_val)
+    assert yield_val, "zero-coupon yield expression must not be empty"
 
 
 if __name__ == '__main__':

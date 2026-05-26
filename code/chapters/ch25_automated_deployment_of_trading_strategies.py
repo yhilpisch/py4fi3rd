@@ -44,6 +44,7 @@ def _load_engine_module() -> ModuleType:
 ENGINE = _load_engine_module()
 HistoricalFeed = ENGINE.HistoricalFeed
 PaperBroker = ENGINE.PaperBroker
+Tick = ENGINE.Tick
 TradingSession = ENGINE.TradingSession
 build_feed = ENGINE.build_feed
 
@@ -177,7 +178,7 @@ class BaselineMLDeployer:
         self.model: Pipeline | None = None
         self.last_fit_bar_count = 0
 
-    def on_tick(self, session: TradingSession, tick) -> None:
+    def on_tick(self, session: TradingSession, tick: Tick) -> None:
         """Update bars, refit when needed, and trade only on signal changes."""
 
         self.tick_history.append(

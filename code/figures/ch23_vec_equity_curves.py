@@ -18,7 +18,6 @@ from types import ModuleType
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUT_PATH = PROJECT_ROOT / "assets" / "figures" / "ch23_vec_equity_curves.png"
@@ -106,6 +105,7 @@ def main() -> None:
     ax.legend(loc="upper left", frameon=False)
     fig.tight_layout()
     fig.savefig(OUT_PATH, dpi=DPI)
+    plt.close(fig)
 
 
 if __name__ == "__main__":

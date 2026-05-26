@@ -256,7 +256,10 @@ def main() -> None:
         )[0]
         - 100.0
     )
-    print(var_es(-pnl))
+    var_val, es_val = var_es(-pnl)
+    print((var_val, es_val))
+    assert es_val >= var_val, "expected shortfall must be >= VaR"
+    assert var_val > 0, "VaR must be positive for a symmetric loss dist"
 
 
 if __name__ == '__main__':

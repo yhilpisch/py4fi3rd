@@ -165,6 +165,9 @@ def main() -> None:
     print(f"{to_annual:.6f}")
     print()
 
+    assert abs(float(weights.sum()) - 1.0) < 1e-6, "weights must sum to 1"
+    assert to_annual > 0, "annualised turnover must be positive"
+
 
 if __name__ == "__main__":
     main()

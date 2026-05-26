@@ -199,6 +199,9 @@ def main() -> None:
         ewma_nb(rets, lam)
         benchmark('ewma_nb', lambda: ewma_nb(rets, lam))
 
+    assert ewma_py(rets, lam) is not None, "EWMA must return a result"
+    assert mc_euro_call_py(**mc_params) > 0, "MC call price must be positive"
+
 
 if __name__ == '__main__':
     main()

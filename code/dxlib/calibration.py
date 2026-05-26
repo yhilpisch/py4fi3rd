@@ -14,7 +14,6 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 if __name__ == "__main__" and __package__ is None:
     package_dir = Path(__file__).resolve().parent

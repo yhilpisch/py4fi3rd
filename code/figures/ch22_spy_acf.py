@@ -66,6 +66,7 @@ def main() -> None:
     ax.grid(True, axis="y", linestyle="--", alpha=0.3)
     fig.tight_layout()
     fig.savefig(OUT_PATH, dpi=DPI)
+    plt.close(fig)
 
 
 if __name__ == "__main__":

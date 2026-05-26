@@ -51,6 +51,8 @@ def main() -> None:
     te_annual = float(active.std(ddof=1) * np.sqrt(252.0))
 
     print(f"Annualised tracking error: {te_annual:.6f} ({te_annual:.2%})")
+    assert te_annual > 0, "tracking error must be positive"
+    assert np.isfinite(te_annual), "tracking error must be finite"
 
 
 if __name__ == "__main__":

@@ -142,6 +142,11 @@ def main() -> None:
     universe = universe_table()
     print(universe)
 
+    assert 0 < te_annual < 1, "tracking error must be between 0 and 1"
+    assert abs(float(holdings["weight"].sum()) - 1.0) < 1e-6, (
+        "weights must sum to 1"
+    )
+
 
 if __name__ == "__main__":
     main()

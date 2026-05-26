@@ -247,7 +247,9 @@ def main() -> None:
     print(target_returns[:5], frontier_vols[:5])
     priors = np.array([0.5, 0.5], dtype=float)
     likelihood = np.array([30 / 90, 60 / 90], dtype=float)
-    print(bayes_posteriors(priors, likelihood))
+    posteriors = bayes_posteriors(priors, likelihood)
+    print(posteriors)
+    assert abs(float(posteriors.sum()) - 1.0) < 1e-6, "posteriors must sum to 1"
 
 
 if __name__ == '__main__':

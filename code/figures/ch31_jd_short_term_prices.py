@@ -25,7 +25,6 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 
 RATE = 0.03
 EXPIRY = dt.date(2026, 3, 20)

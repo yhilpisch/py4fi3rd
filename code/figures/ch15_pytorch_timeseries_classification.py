@@ -30,6 +30,10 @@ except ImportError:  # pragma: no cover - tqdm is optional
     tqdm = None
 
 SYMBOL = "BTC-USD"
+WINDOW = 20
+HORIZON = 5
+HIDDEN_SIZE = 16
+N_EPOCHS = 2500
 
 
 class LSTMClassifier(nn.Module):
@@ -109,10 +113,8 @@ def main() -> None:
     prices = data[symbol].dropna()
     log_returns = np.log(prices / prices.shift(1)).dropna()
 
-    window = 20
-    horizon = 5  # predict sign of the next h trading days combined
     X, y, dates = _build_lagged_dataset(
-        log_returns, window=window, horizon=horizon
+        log_returns, window=WINDOW, horizon=HORIZON
     )
 
     split = train_test_split(
@@ -132,7 +134,7 @@ def main() -> None:
     X_test_scaled = scaler.transform(X_test_flat).reshape(X_test.shape)
 
     device = torch.device("cpu")
-    model = LSTMClassifier(input_size=1, hidden_size=16).to(device)
+    model = LSTMClassifier(input_size=1, hidden_size=HIDDEN_SIZE).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     # Balance the up/down classes so the model does not collapse
     # to always predicting the majority class.
@@ -146,8 +148,7 @@ def main() -> None:
     y_train_t = torch.from_numpy(y_train).to(device).view(-1, 1)
 
     model.train()
-    n_epochs = 2500
-    epochs = range(n_epochs)
+    epochs = range(N_EPOCHS)
     iterator = (
         tqdm(epochs, desc="Training LSTM (classification)", leave=False)
         if tqdm
@@ -172,7 +173,7 @@ def main() -> None:
         acc = float((y_pred == y_test).mean())
 
     print(
-        f"[LSTM classification] window={window}, horizon={horizon}, "
+        f"[LSTM classification] window={WINDOW}, horizon={HORIZON}, "
         f"train_loss={train_loss:.4f}, accuracy={acc:.3f}"
     )
 
@@ -233,7 +234,7 @@ def main() -> None:
     ax_cm.set_ylabel("True label", fontsize=7)
     ax_cm.tick_params(axis="both", labelsize=7)
     ax_cm.set_title(
-        f"LSTM {horizon}-day up/down (acc={acc:.3f})",
+        f"LSTM {HORIZON}-day up/down (acc={acc:.3f})",
         fontsize=8,
     )
 

@@ -260,6 +260,11 @@ def main() -> None:
     print("== Factor-level percentage risk contributions ==")
     print(rc_f_pct)
 
+    assert abs(float(w_mv_capped.sum()) - 1.0) < 1e-6, "MV weights must sum to 1"
+    assert abs(float(rc_mv_pct.sum()) - 1.0) < 1e-6, (
+        "asset risk contributions must sum to 1"
+    )
+
 
 if __name__ == "__main__":
     main()

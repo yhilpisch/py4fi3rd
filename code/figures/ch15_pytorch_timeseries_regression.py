@@ -29,6 +29,9 @@ except ImportError:  # pragma: no cover - tqdm is optional
     tqdm = None
 
 SYMBOL = "SPY"
+WINDOW = 10
+HIDDEN_SIZE = 16
+N_EPOCHS = 2500
 
 
 class LSTMRegressor(nn.Module):
@@ -106,8 +109,7 @@ def main() -> None:
     prices = data[symbol].dropna()
     log_returns = np.log(prices / prices.shift(1)).dropna()
 
-    window = 10
-    X, y, dates = _build_lagged_dataset(log_returns, window=window)
+    X, y, dates = _build_lagged_dataset(log_returns, window=WINDOW)
 
     split = train_test_split(
         X,
@@ -126,7 +128,7 @@ def main() -> None:
     X_test_scaled = scaler.transform(X_test_flat).reshape(X_test.shape)
 
     device = torch.device("cpu")
-    model = LSTMRegressor(input_size=1, hidden_size=16).to(device)
+    model = LSTMRegressor(input_size=1, hidden_size=HIDDEN_SIZE).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     loss_fn = nn.MSELoss()
 
@@ -134,8 +136,7 @@ def main() -> None:
     y_train_t = torch.from_numpy(y_train).to(device).view(-1, 1)
 
     model.train()
-    n_epochs = 2500
-    epochs = range(n_epochs)
+    epochs = range(N_EPOCHS)
     iterator = (
         tqdm(epochs, desc="Training LSTM (regression)", leave=False)
         if tqdm
@@ -161,7 +162,7 @@ def main() -> None:
     corr = float(np.corrcoef(preds_test, y_test)[0, 1])
 
     print(
-        f"[LSTM regression] window={window}, train_loss={train_loss:.6f}, "
+        f"[LSTM regression] window={WINDOW}, train_loss={train_loss:.6f}, "
         f"test_mse={mse:.6f}, test_corr={corr:.3f}"
     )
 

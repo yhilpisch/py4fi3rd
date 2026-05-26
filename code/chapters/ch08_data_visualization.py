@@ -74,6 +74,7 @@ def main() -> None:
     base_dir = Path(__file__).resolve().parents[2]
     out = base_dir / "assets" / "figures" / "ch08_demo_line.png"
     demo_line_plot(out)
+    assert out.exists(), f"output file not written: {out}"
 
 
 if __name__ == "__main__":

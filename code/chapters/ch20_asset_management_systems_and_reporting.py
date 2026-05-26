@@ -224,6 +224,11 @@ def main() -> None:
     print(sector_c.round(3))
     print()
 
+    assert len(report) > 0, "performance report must not be empty"
+    assert abs(float(sector_w.sum()) - 1.0) < 1e-6, (
+        "sector weights must sum to 1"
+    )
+
 
 if __name__ == "__main__":
     main()

@@ -141,6 +141,10 @@ def main() -> None:
     print(vol.dropna().tail())
     print(equity.tail())
 
+    assert len(prices) > 0, "prices must not be empty"
+    assert len(rets) < len(prices), "returns must be shorter than prices"
+    assert (equity > 0).all().all(), "equity curves must be positive"
+
 
 if __name__ == "__main__":
     main()
