@@ -4,7 +4,7 @@ Chapter 18 - Portfolio Construction and Risk.
 Figure: Factor exposures for a simple two-factor model.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

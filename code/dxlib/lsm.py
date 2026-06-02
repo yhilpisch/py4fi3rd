@@ -4,7 +4,7 @@ Chapter 29 - Derivatives Valuation.
 Least-squares Monte Carlo (Longstaff-Schwartz) valuation for American options.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

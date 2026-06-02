@@ -8,7 +8,7 @@ Companion code for the core examples in Chapter 20:
 - sector-level contribution estimates over a recent window
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

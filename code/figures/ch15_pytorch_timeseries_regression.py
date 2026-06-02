@@ -5,7 +5,7 @@ PyTorch LSTM regressor predicting next-day returns
 from lagged index returns.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

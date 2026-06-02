@@ -9,7 +9,7 @@ but it shows how you might:
 - and provide a small entry point that checks basic prerequisites.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

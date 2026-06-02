@@ -6,7 +6,7 @@ portfolio statistics, efficient-frontier calculations, and a small
 Bayesian update example.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

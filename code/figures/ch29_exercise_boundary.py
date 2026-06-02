@@ -4,7 +4,7 @@ Chapter 29 - Derivatives Valuation.
 Estimated early-exercise boundary from LSM for an American put option.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

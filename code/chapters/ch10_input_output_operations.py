@@ -9,7 +9,7 @@ in Chapter 10:
 - and simple pandas I/O with CSV, JSON, SQLite, and HDF5.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

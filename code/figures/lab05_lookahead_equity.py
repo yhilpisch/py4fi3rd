@@ -4,7 +4,7 @@ Lab 05 - Why Failed Backtests Still Look Convincing.
 Figure: Look-ahead bias creates an impossible equity curve.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

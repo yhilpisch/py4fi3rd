@@ -4,7 +4,7 @@ Chapter 14 - Statistics.
 Random portfolios and approximate mean-variance efficient frontier.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

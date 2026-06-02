@@ -4,7 +4,7 @@ Chapter 31 - Market-Based Valuation.
 Simple implied-volatility surface built from a small set of smiles.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

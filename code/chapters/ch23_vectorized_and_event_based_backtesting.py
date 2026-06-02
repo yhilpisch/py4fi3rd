@@ -8,7 +8,7 @@ Companion code for the core examples in Chapter 23:
 - minimal event-based engine fed by the same out-of-sample signals
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

@@ -4,7 +4,7 @@ Chapter 28 - Simulation of Financial Models.
 Risk-factor simulation models used throughout Part VI.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

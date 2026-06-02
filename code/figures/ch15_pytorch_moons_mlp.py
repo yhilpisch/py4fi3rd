@@ -4,7 +4,7 @@ Chapter 15 - Machine and Deep Learning.
 Two-layer PyTorch MLP classifier on a synthetic two-moons dataset.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

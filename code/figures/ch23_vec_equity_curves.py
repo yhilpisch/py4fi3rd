@@ -4,7 +4,7 @@ Chapter 23 - Vectorized and Event-Based Backtesting.
 Vectorized equity curves for buy-and-hold vs ML strategy.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

@@ -4,7 +4,7 @@ Lab 07 - Constructing the VIX from SPX Option Data.
 Figure: Strike-level contributions to model-free variance.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

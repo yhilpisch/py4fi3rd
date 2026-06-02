@@ -5,7 +5,7 @@ This companion module wraps the chapter's supervised, unsupervised, and simple
 neural-network examples in reusable helpers with optional dependency checks.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

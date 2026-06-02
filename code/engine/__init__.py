@@ -4,7 +4,7 @@ Chapter 24 - Building a Market and Broker for Trading.
 Compact trading engine package for chapter 24.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """

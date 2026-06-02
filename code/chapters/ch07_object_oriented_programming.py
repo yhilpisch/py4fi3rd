@@ -9,7 +9,7 @@ of the OOP patterns introduced in Chapter 7:
 - and a small valuation engine that uses a price source interface.
 
 (c) Dr. Yves J. Hilpisch
-AI-supported by GPT 5.x
+AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
 https://hilpisch.com | https://linktr.ee/dyjh
 """
