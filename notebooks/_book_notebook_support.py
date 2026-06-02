@@ -105,10 +105,6 @@ def setup_notebook(
     figures_dir = code_dir / "figures"
     data_dir = project_root / "data"
 
-    loaded_code = sys.modules.get("code")
-    if loaded_code is not None and not hasattr(loaded_code, "__path__"):
-        del sys.modules["code"]
-
     os.chdir(notebook_dir)
     for path in (project_root, code_dir, chapters_dir):
         path_str = str(path)
