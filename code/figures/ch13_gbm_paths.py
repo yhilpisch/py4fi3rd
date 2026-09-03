@@ -44,7 +44,7 @@ def main() -> None:
 
     fig, ax = plt.subplots(figsize=(7.5, 4))
     x = np.arange(0, n_steps + 1)
-    ax.plot(x, s_paths, linewidth=1.0, alpha=0.8)
+    ax.plot(x, s_paths, linewidth=0.6, alpha=0.7, color="tab:blue")
     ax.set_title("Geometric Brownian Motion Paths")
     ax.set_xlabel("Step")
     ax.set_ylabel("Price")

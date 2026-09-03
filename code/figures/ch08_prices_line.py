@@ -36,7 +36,7 @@ def main() -> None:
     ax.set_title("Synthetic Price Series")
     ax.set_xlabel("Time")
     ax.set_ylabel("Price")
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True, linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

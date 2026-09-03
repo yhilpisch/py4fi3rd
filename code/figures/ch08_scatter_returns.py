@@ -39,7 +39,7 @@ def main() -> None:
     ax.set_ylabel("Y")
     ax.axhline(0.0, color="black", linewidth=0.8, alpha=0.7)
     ax.axvline(0.0, color="black", linewidth=0.8, alpha=0.7)
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True, linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

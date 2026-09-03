@@ -86,9 +86,8 @@ class GeometricBrownianMotion:
     """
     Geometric Brownian motion (GBM) process for equity prices.
 
-    The process is
-    latexmath:[dS_t = \\mu S_t dt + \\sigma S_t dW_t],
-    and the simulation uses the exact log-normal step.
+    The process is dS_t = mu * S_t * dt + sigma * S_t * dW_t, and the
+    simulation uses the exact log-normal step.
     """
 
     drift: float

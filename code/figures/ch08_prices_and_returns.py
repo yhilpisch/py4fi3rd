@@ -42,13 +42,13 @@ def main() -> None:
     ax_price.plot(prices, color="tab:blue")
     ax_price.set_title("Synthetic Prices and Returns")
     ax_price.set_ylabel("Price")
-    ax_price.grid(True, linestyle="--", alpha=0.3)
+    ax_price.grid(True, linestyle="--", alpha=0.6)
 
     ax_ret.bar(np.arange(len(rets)), rets, color="tab:orange", width=0.9)
     ax_ret.axhline(0.0, color="black", linewidth=0.8)
     ax_ret.set_ylabel("Return")
     ax_ret.set_xlabel("Time")
-    ax_ret.grid(True, axis="y", linestyle="--", alpha=0.3)
+    ax_ret.grid(True, axis="y", linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

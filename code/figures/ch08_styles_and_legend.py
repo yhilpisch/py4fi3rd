@@ -53,7 +53,7 @@ def main() -> None:
     ax.set_title("Two Series with Styles and Legend")
     ax.set_xlabel("Time")
     ax.set_ylabel("Value")
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True, linestyle="--", alpha=0.6)
     ax.legend(loc="best")
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]

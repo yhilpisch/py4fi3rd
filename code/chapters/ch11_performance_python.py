@@ -102,6 +102,34 @@ if nb is not None:
         return math.exp(-r * T) * payoff_sum / n_paths
 
 
+    @nb.njit(parallel=True, cache=True)
+    def mc_euro_call_nb_steps(
+        s0: float,
+        k: float,
+        r: float,
+        sigma: float,
+        t: float,
+        n_paths: int,
+        n_steps: int,
+    ) -> float:
+        """Simulate all time steps with fused RNG and parallel paths."""
+
+        dt = t / n_steps
+        drift = (r - 0.5 * sigma**2) * dt
+        vol = sigma * math.sqrt(dt)
+        payoff_sum = 0.0
+        for path in nb.prange(n_paths):
+            shock_sum = 0.0
+            for _ in range(n_steps):
+                shock_sum += np.random.standard_normal()
+            log_return = n_steps * drift + vol * shock_sum
+            price = s0 * math.exp(log_return)
+            payoff = price - k
+            if payoff > 0.0:
+                payoff_sum += payoff
+        return math.exp(-r * t) * payoff_sum / n_paths
+
+
     @nb.njit(cache=True)
     def ewma_nb(x: Array, lam: float) -> Array:
         out = np.empty_like(x)
@@ -115,6 +143,7 @@ if nb is not None:
 else:
     average_nb = None
     mc_euro_call_nb = None
+    mc_euro_call_nb_steps = None
     ewma_nb = None
 
 
@@ -133,6 +162,29 @@ def mc_euro_call_py(
     z = rng.standard_normal(n_paths)
     s_T = s0 * np.exp((r - 0.5 * sigma**2) * T + sigma * math.sqrt(T) * z)
     return float(math.exp(-r * T) * np.maximum(s_T - K, 0.0).mean())
+
+
+def mc_euro_call_np_steps(
+    s0: float,
+    k: float,
+    r: float,
+    sigma: float,
+    t: float,
+    n_paths: int,
+    n_steps: int,
+    seed: int = 42,
+) -> float:
+    """Simulate all steps but retain only each path's terminal log return."""
+
+    rng = np.random.default_rng(seed=seed)
+    dt = t / n_steps
+    drift = (r - 0.5 * sigma**2) * dt
+    vol = sigma * math.sqrt(dt)
+    shocks = rng.standard_normal((n_steps, n_paths))
+    log_terminal = n_steps * drift + vol * shocks.sum(axis=0)
+    terminal = s0 * np.exp(log_terminal)
+    payoffs = np.maximum(terminal - k, 0.0)
+    return float(math.exp(-r * t) * payoffs.mean())
 
 
 def ewma_py(x: Array, lam: float) -> Array:

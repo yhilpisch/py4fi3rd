@@ -58,10 +58,21 @@ def main() -> None:
 
     fig, ax = plt.subplots(figsize=(7.5, 4))
     ax.plot(
-        x, y_clean, color="black", linewidth=1.5, label="True term structure"
+        x,
+        y_clean,
+        color="black",
+        linewidth=1.8,
+        zorder=3,
+        label="True term structure",
     )
     ax.scatter(
-        x, y_obs, color="tab:gray", s=20, alpha=0.7, label="Noisy observations"
+        x,
+        y_obs,
+        color="tab:gray",
+        s=20,
+        alpha=0.7,
+        zorder=5,
+        label="Noisy observations",
     )
     ax.plot(
         x,
@@ -75,8 +86,9 @@ def main() -> None:
         x,
         y_bf,
         color="tab:blue",
-        linestyle="-.",
-        linewidth=1.25,
+        linestyle=(0, (5, 3)),
+        linewidth=1.6,
+        zorder=4,
         label="Basis-function regression",
     )
 

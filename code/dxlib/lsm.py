@@ -130,7 +130,7 @@ class AmericanPutLSM:
     Least-squares Monte Carlo (LSM) valuation for an American put option.
 
     The implementation follows Longstaff & Schwartz (2001) and uses polynomial
-    basis functions in the normalized state variable latexmath:[S_t / K].
+    basis functions in the normalized state variable S_t / K.
     """
 
     process: PathSimulator

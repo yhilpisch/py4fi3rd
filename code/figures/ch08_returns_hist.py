@@ -35,7 +35,7 @@ def main() -> None:
     ax.set_title("Synthetic Daily Returns Histogram")
     ax.set_xlabel("Return")
     ax.set_ylabel("Frequency")
-    ax.grid(True, axis="y", linestyle="--", alpha=0.3)
+    ax.grid(True, axis="y", linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

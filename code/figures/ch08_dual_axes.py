@@ -55,7 +55,7 @@ def main() -> None:
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
 
-    ax1.grid(True, linestyle="--", alpha=0.3)
+    ax1.grid(True, linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

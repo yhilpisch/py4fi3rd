@@ -42,12 +42,12 @@ def main() -> None:
     ax_line.plot(x, y_line, color="tab:blue", marker="o", markersize=3)
     ax_line.set_ylabel("Line value")
     ax_line.set_title("Line and Bar Subplots")
-    ax_line.grid(True, linestyle="--", alpha=0.3)
+    ax_line.grid(True, linestyle="--", alpha=0.6)
 
     ax_bar.bar(x, y_bar, color="tab:green", width=0.9)
     ax_bar.set_ylabel("Bar value")
     ax_bar.set_xlabel("Index")
-    ax_bar.grid(True, axis="y", linestyle="--", alpha=0.3)
+    ax_bar.grid(True, axis="y", linestyle="--", alpha=0.6)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     figures_dir = base_dir / "assets" / "figures"

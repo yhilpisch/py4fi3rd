@@ -49,25 +49,25 @@ def lsm_american_put(
     S = s0 * np.exp(log_paths)
 
     h = np.maximum(K - S, 0.0)
-    V = h.copy()
+    cashflow = h[-1].copy()
+    discount = np.exp(-r * dt)
 
     for t in range(n_steps - 1, 0, -1):
+        cashflow *= discount
         in_the_money = h[t] > 0.0
         if not np.any(in_the_money):
             continue
-        X = S[t, in_the_money]
-        Y = V[t + 1, in_the_money] * np.exp(-r * dt)
+        X = S[t, in_the_money] / K
+        Y = cashflow[in_the_money]
         A = np.column_stack([np.ones_like(X), X, X**2])
         coeffs, *_ = np.linalg.lstsq(A, Y, rcond=None)
         continuation = A @ coeffs
         exercise = h[t, in_the_money]
         exercise_now = exercise > continuation
         idx = np.where(in_the_money)[0][exercise_now]
-        V[t, idx] = exercise[exercise_now]
-        V[t + 1 :, idx] = 0.0
+        cashflow[idx] = exercise[exercise_now]
 
-    prices_0 = V[1] * np.exp(-r * dt)
-    return float(prices_0.mean())
+    return float((cashflow * discount).mean())
 
 
 def main() -> None:
@@ -85,7 +85,7 @@ def main() -> None:
     sigma = 0.2
     T = 1.0
     n_steps = 50
-    n_paths = 75_000
+    n_paths = 100_000
 
     rng = np.random.default_rng(seed=2029)
     strikes = np.linspace(60.0, 140.0, 9)

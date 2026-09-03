@@ -189,24 +189,25 @@ def lsm_american_put(
     log_paths = np.vstack([np.zeros(n_paths), log_returns.cumsum(axis=0)])
     S = s0 * np.exp(log_paths)
     h = np.maximum(K - S, 0.0)
-    V = h.copy()
+    cashflow = h[-1].copy()
+    discount = np.exp(-r * dt)
 
     for t in range(n_steps - 1, 0, -1):
+        cashflow *= discount
         in_the_money = h[t] > 0.0
         if not np.any(in_the_money):
             continue
-        X = S[t, in_the_money]
-        Y = V[t + 1, in_the_money] * np.exp(-r * dt)
+        X = S[t, in_the_money] / K
+        Y = cashflow[in_the_money]
         A = np.column_stack([np.ones_like(X), X, X**2])
         coeffs, *_ = np.linalg.lstsq(A, Y, rcond=None)
         continuation = A @ coeffs
         exercise = h[t, in_the_money]
         exercise_now = exercise > continuation
         idx = np.where(in_the_money)[0][exercise_now]
-        V[t, idx] = exercise[exercise_now]
-        V[t + 1 :, idx] = 0.0
+        cashflow[idx] = exercise[exercise_now]
 
-    return float((V[1] * np.exp(-r * dt)).mean())
+    return float((cashflow * discount).mean())
 
 
 def mc_call_convergence(grid: Array) -> Array:

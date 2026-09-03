@@ -51,12 +51,21 @@ def main() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(9.5, 4), sharey=True)
 
     ax = axes[0]
-    ax.plot(x_fine, y_true, color="black", linewidth=1.5, label="True function")
+    ax.plot(
+        x_fine,
+        y_true,
+        color="black",
+        linewidth=1.8,
+        zorder=3,
+        label="True function",
+    )
     ax.plot(
         x_fine,
         y_lin,
         color="tab:orange",
-        linewidth=1.25,
+        linestyle=(0, (5, 3)),
+        linewidth=1.6,
+        zorder=4,
         label="Linear spline",
     )
     ax.scatter(
@@ -69,12 +78,21 @@ def main() -> None:
     ax.legend(loc="best")
 
     ax = axes[1]
-    ax.plot(x_fine, y_true, color="black", linewidth=1.5, label="True function")
+    ax.plot(
+        x_fine,
+        y_true,
+        color="black",
+        linewidth=1.8,
+        zorder=3,
+        label="True function",
+    )
     ax.plot(
         x_fine,
         y_cubic,
         color="tab:green",
-        linewidth=1.25,
+        linestyle=(0, (5, 3)),
+        linewidth=1.6,
+        zorder=4,
         label="Cubic spline",
     )
     ax.scatter(
