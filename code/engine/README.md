@@ -79,7 +79,7 @@ The package root (`engine/__init__.py`) re-exports the primary entry points:
   - `HistoricalFeed`: replays EOD prices as pseudo-real-time ticks
   - `GBMFeed`: simulated ticks based on GBM parameters estimated from history
   - `build_feed()`: factory returning either `HistoricalFeed` or `GBMFeed`
-  - `estimate_gbm_parameters()`: annualised drift/vol estimation from log returns
+  - `estimate_gbm_parameters()`: annualized drift/vol estimation from log returns
   - `generate_simulated_timestamps()`: fixed/jittered/random arrival times
 - `engine/broker.py`
   - `PaperBroker`: market-order execution, position updates, stop-loss handling
@@ -114,8 +114,8 @@ The broker returns JSON-friendly receipts and snapshots for inspection:
 
 - `PaperBroker.place_order()` returns an `order_filled` receipt that includes
   a nested `account_snapshot`.
-- `PaperBroker.get_account_snapshot()` returns `cash`, `equity`, realised and
-  unrealised P&L, open positions, and open stop orders.
+- `PaperBroker.get_account_snapshot()` returns `cash`, `equity`, realized and
+  unrealized P&L, open positions, and open stop orders.
 
 ### Strategy callback interface
 
@@ -148,4 +148,3 @@ pytest -q
 - The account model is a simple cash account with marked-to-mid positions.
 - Stop orders are a minimal stop-loss mechanism keyed by symbol.
 - The engine is single-symbol by design for readability.
-

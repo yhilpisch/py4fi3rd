@@ -23,21 +23,30 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
     from assetlib.backtest import BacktestResult
-    from assetlib.core import Portfolio
+    from assetlib.core import Portfolio, _ANNUALIZATION_FACTOR
 else:
     from .backtest import BacktestResult
-    from .core import Portfolio
+    from .core import Portfolio, _ANNUALIZATION_FACTOR
 
 
-def _annualization_factor() -> float:
-    return 252.0  # trading days per year
+def _max_drawdown(returns: pd.Series) -> float:
+    """Maximum peak-to-trough drawdown of a cumulative return series."""
+
+    cum = (1.0 + returns).cumprod()
+    running_max = cum.cummax()
+    drawdowns = cum / running_max - 1.0
+    return float(drawdowns.min())
 
 
 @dataclass
 class PerformanceReport:
+    """Compact performance and risk table with a text summary."""
+
     table: pd.DataFrame
 
     def summary_text(self) -> str:
+        """Return a one-sentence plain-language summary of the report."""
+
         port = self.table.loc["Portfolio"]  # portfolio row
         bench = self.table.loc["Benchmark"]  # benchmark row
         msg = (
@@ -55,7 +64,7 @@ def performance_report(result: BacktestResult) -> PerformanceReport:
 
     r_port = result.portfolio_returns  # portfolio returns
     r_bench = result.benchmark_returns  # benchmark returns
-    ann_factor = _annualization_factor()  # annualization factor
+    ann_factor = _ANNUALIZATION_FACTOR  # trading days per year
     n_obs = len(r_port)  # number of observations
 
     port_total = (1.0 + r_port).prod()  # cumulative growth
@@ -69,17 +78,14 @@ def performance_report(result: BacktestResult) -> PerformanceReport:
     active = r_port - r_bench  # active returns
     te_ann = active.std(ddof=1) * np.sqrt(ann_factor)  # tracking error
 
-    def max_drawdown(returns: pd.Series) -> float:
-        cum = (1.0 + returns).cumprod()
-        running_max = cum.cummax()
-        drawdowns = cum / running_max - 1.0
-        return float(drawdowns.min())
-
     report = pd.DataFrame(
         {
             "annualized_return": [port_ann, bench_ann],
             "annualized_volatility": [port_vol, bench_vol],
-            "max_drawdown": [max_drawdown(r_port), max_drawdown(r_bench)],
+            "max_drawdown": [
+                _max_drawdown(r_port),
+                _max_drawdown(r_bench),
+            ],
             "annualized_tracking_error": [te_ann, 0.0],
         },
         index=["Portfolio", "Benchmark"],

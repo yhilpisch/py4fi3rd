@@ -189,7 +189,10 @@ def main() -> None:
     handles = handles_price + handles_diff[:1]
     labels = labels_price + labels_diff[:1]
     fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
-    fig.suptitle(f"Expiry {EXPIRY.isoformat()}", fontsize=10)
+    fig.suptitle(
+        f"Jump-diffusion prices and differences — expiry {EXPIRY.isoformat()}",
+        fontsize=10,
+    )
     fig.tight_layout(rect=(0.0, 0.12, 1.0, 0.95))
 
     figures_dir = base_dir / "assets" / "figures"

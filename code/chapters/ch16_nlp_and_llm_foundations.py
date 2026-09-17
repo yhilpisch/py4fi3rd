@@ -41,7 +41,7 @@ def simple_tokenize(text: str) -> list[str]:
     """Lower-case and split a string into simple alphanumeric tokens."""
 
     text = text.lower()
-    text = re.sub(r"[^a-z0-9\\s]", " ", text)
+    text = re.sub(r"[^a-z0-9]", " ", text)
     return [tok for tok in text.split() if tok]
 
 

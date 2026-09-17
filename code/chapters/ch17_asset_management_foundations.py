@@ -37,7 +37,7 @@ def load_eod_data() -> pd.DataFrame:
 
 
 def tracking_error_example() -> float:
-    """Compute annualised tracking error for the Chapter 17 example."""
+    """Compute annualized tracking error for the Chapter 17 example."""
 
     prices = load_eod_data()
     symbols = ["AAPL", "JPM", "TLT"]
@@ -64,16 +64,16 @@ def holdings_snapshot() -> pd.DataFrame:
 
     holdings = pd.DataFrame(
         {
-            "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-            "quantity": [120, 80, 150, 200],
-            "price": [180.25, 820.10, 145.30, 520.10],
+            "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+            "quantity": [120, 80, 150, 1000],
+            "price": [180.25, 820.10, 145.30, 102.50],
             "sector": [
                 "Technology",
                 "Technology",
                 "Financials",
-                "Equity Index",
+                "Fixed Income",
             ],
-            "region": ["US", "US", "US", "Global"],
+            "region": ["US", "US", "US", "US"],
             "currency": ["USD", "USD", "USD", "USD"],
         }
     )
@@ -94,7 +94,7 @@ def stacked_prices_example() -> pd.DataFrame:
     """Return the head of the stacked prices panel."""
 
     prices = load_eod_data()
-    prices = prices[["AAPL", "NVDA", "JPM", "SPY"]]
+    prices = prices[["AAPL", "NVDA", "JPM", "TLT"]]
     stacked = prices.stack().to_frame("price")
     stacked.index.names = ["Date", "symbol"]
     return stacked.head()
@@ -106,9 +106,9 @@ def universe_table() -> pd.DataFrame:
     universe = pd.DataFrame(
         {
             "instrument_id": [1, 2, 3, 4],
-            "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-            "asset_class": ["Equity", "Equity", "Equity", "Equity ETF"],
-            "region": ["US", "US", "US", "Global"],
+            "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+            "asset_class": ["Equity", "Equity", "Equity", "Bond ETF"],
+            "region": ["US", "US", "US", "US"],
             "esg_flag": [False, False, False, False],
         }
     ).set_index("instrument_id")
@@ -120,7 +120,7 @@ def main() -> None:
 
     print("== Tracking error example ==")
     te_annual = tracking_error_example()
-    print(f"Annualised tracking error: {te_annual:.6f} ({te_annual:.4%})")
+    print(f"Annualized tracking error: {te_annual:.6f} ({te_annual:.4%})")
     print()
 
     print("== Holdings snapshot ==")

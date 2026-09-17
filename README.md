@@ -55,6 +55,33 @@ python tools/validate_notebooks.py ch15*.ipynb
 The code validator checks syntax, imported modules, and optionally executes scripts with a safe Matplotlib backend.
 The notebook validator checks JSON structure and optionally executes notebooks in place.
 
+For a Colab-style check from a fresh runtime, run the repository directly from its
+checkout; no project package installation is required:
+
+```bash
+python tools/validate_colab.py --scripts --all-notebooks --timeout 300
+python tools/validate_code.py 'chapters/ch*.py' 'figures/*.py' 'labs/*.py' --timeout 300
+```
+
+The Colab validator runs the repository bootstrap, representative scripts, and all
+non-checkpoint notebooks in fresh kernels. The code validator then executes all
+runnable chapter, figure, and lab scripts; the `ch*.py` pattern excludes the Chapter
+11 build helper. For a fast static/import check that includes setup helpers, use
+`python tools/validate_code.py 'chapters/*.py' 'figures/*.py' 'labs/*.py' --skip-execute`.
+Pass `--log-file /content/py4fi3rd-colab-validation.log` to
+`validate_colab.py` to mirror its output and errors to a downloadable text file.
+The broader script-validation output can be appended with `tee -a`; in Colab,
+download the resulting file with:
+
+```python
+from google.colab import files
+
+files.download("/content/py4fi3rd-colab-validation.log")
+```
+
+The optional TsTables workflow is not part of this base check and should be tested
+separately after its external dependencies have been deliberately provisioned.
+
 ## Disclaimer
 
 This material is provided for educational and personal research use only.

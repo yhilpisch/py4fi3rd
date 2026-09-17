@@ -59,15 +59,15 @@ def load_symbol_history(symbol: str, path: Path = DATA_EOD) -> pd.Series:
 
 
 def estimate_gbm_parameters(prices: pd.Series) -> tuple[float, float]:
-    """Estimate annualised GBM drift and volatility from log returns."""
+    """Estimate annualized GBM drift and volatility from log returns."""
 
     log_returns = np.log(prices / prices.shift(1)).dropna()  # log-return path
     if log_returns.empty:
         raise ValueError("not enough data to estimate GBM parameters.")
-    mu = float(log_returns.mean() * TRADING_DAYS)  # annualised drift
+    mu = float(log_returns.mean() * TRADING_DAYS)  # annualized drift
     sigma = float(
         log_returns.std(ddof=0) * np.sqrt(TRADING_DAYS)
-    )  # annualised vol
+    )  # annualized vol
     return mu, sigma
 
 
@@ -84,17 +84,15 @@ def make_tick(
     return Tick(
         timestamp=pd.Timestamp(timestamp),
         symbol=symbol,
-        bid=float(mid - half_spread),
-        ask=float(mid + half_spread),
+        bid=round(float(mid - half_spread), 6),
+        ask=round(float(mid + half_spread), 6),
         source=source,
     )
 
 
 def _to_timedelta(value: str | pd.Timedelta) -> pd.Timedelta:
-    """Convert supported interval values to a pandas Timedelta."""
+    """Coerce a bar-interval specification to a pandas Timedelta."""
 
-    if isinstance(value, pd.Timedelta):
-        return value
     return pd.to_timedelta(value)
 
 

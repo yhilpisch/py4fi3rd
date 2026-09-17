@@ -99,7 +99,7 @@ def main() -> None:
         label="ML strategy",
     )
     ax.set_xlabel("Date")
-    ax.set_ylabel("Normalised equity (start = 1.0)")
+    ax.set_ylabel("Normalized equity (start = 1.0)")
     ax.set_title("Walk-Forward Backtest with Proportional Costs")
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(loc="upper left", frameon=False)

@@ -5,7 +5,7 @@ This companion module collects reusable helpers for core time-series tasks:
 
 - loading and cleaning daily price data,
 - computing returns and rolling indicators,
-- resampling and realised-volatility calculations,
+- resampling and realized-volatility calculations,
 - and evaluating a simple SMA timing rule.
 
 (c) Dr. Yves J. Hilpisch

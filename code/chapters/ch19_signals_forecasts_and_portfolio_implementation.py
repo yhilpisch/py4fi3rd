@@ -5,7 +5,7 @@ Companion code for the core examples in Chapter 19:
 
 - feature engineering for momentum and volatility
 - forward-return targets and information coefficients
-- mapping standardised signals to weights
+- mapping standardized signals to weights
 - simple weekly rebalancing backtest and turnover diagnostics
 
 (c) Dr. Yves J. Hilpisch
@@ -161,12 +161,12 @@ def main() -> None:
 
     to_daily = turnover_series(w_daily)
     to_annual = float(to_daily.mean() * 252.0)
-    print("== Annualised turnover for weekly rebalancing ==")
+    print("== Annualized turnover for weekly rebalancing ==")
     print(f"{to_annual:.6f}")
     print()
 
     assert abs(float(weights.sum()) - 1.0) < 1e-6, "weights must sum to 1"
-    assert to_annual > 0, "annualised turnover must be positive"
+    assert to_annual > 0, "annualized turnover must be positive"
 
 
 if __name__ == "__main__":

@@ -14,11 +14,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from numpy.typing import NDArray
 
 __all__ = ["ImpliedVolSurface"]
 
-FloatArray = NDArray[np.float64]
+from .types import FloatArray
 
 
 @dataclass(frozen=True, slots=True)

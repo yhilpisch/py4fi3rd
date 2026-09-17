@@ -31,8 +31,8 @@ def load_prices_and_holdings() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     holdings = pd.DataFrame(
         {
-            "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-            "quantity": [120, 80, 150, 200],
+            "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+            "quantity": [120, 80, 150, 1000],
         }
     )
     return prices, holdings
@@ -44,7 +44,7 @@ def compute_cumulative_returns(
     """Compute cumulative portfolio and benchmark returns."""
 
     symbols = holdings["symbol"].tolist()
-    sub = prices[symbols].dropna(how="any")
+    sub = prices[symbols + ["SPY"]].dropna(how="any")
     if len(sub) > window_days:
         sub = sub.iloc[-window_days:]
 

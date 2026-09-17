@@ -3,6 +3,11 @@ Chapter 21 - A Small Asset Management Library in Python.
 
 Market data loading and return calculation utilities.
 
+The default data path resolves relative to the project layout
+(`PROJECT_ROOT / data / eod_data.csv`), so the package expects to live
+under `code/assetlib/` in the book's repository; pass an explicit path
+to `MarketData.load()` to read prices from anywhere else.
+
 (c) Dr. Yves J. Hilpisch
 AI-supported by various LLMs
 The Python Quants GmbH | https://tpq.io
@@ -30,6 +35,8 @@ class MarketData:
 
     @classmethod
     def load(cls, path: Optional[str] = None) -> "MarketData":
+        """Load end-of-day prices from a CSV file."""
+
         csv_path = Path(path) if path is not None else DATA_PATH  # file path
         df = pd.read_csv(
             csv_path, parse_dates=["Date"], index_col="Date"
@@ -42,6 +49,8 @@ class MarketData:
         symbols: Sequence[str],
         dropna: bool = True,
     ) -> pd.DataFrame:
+        """Select symbol columns, optionally dropping incomplete rows."""
+
         cols: List[str] = list(symbols)  # concrete list of symbols
         sub = self.prices[cols]  # price slice
         if dropna:
@@ -53,6 +62,8 @@ class MarketData:
         symbols: Sequence[str],
         dropna: bool = True,
     ) -> pd.DataFrame:
+        """Compute daily simple returns for the selected symbols."""
+
         prices = self.select(symbols=symbols, dropna=dropna)  # aligned prices
         rets = prices.pct_change()  # simple returns
         if dropna:

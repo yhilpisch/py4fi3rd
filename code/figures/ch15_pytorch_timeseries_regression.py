@@ -120,7 +120,7 @@ def main() -> None:
     )
     X_train, X_test, y_train, y_test, dates_train, dates_test = split
 
-    # Standardise lagged-return windows based on the training data only.
+    # Standardize lagged-return windows based on the training data only.
     scaler = StandardScaler()
     X_train_flat = X_train.reshape(X_train.shape[0], -1)
     X_test_flat = X_test.reshape(X_test.shape[0], -1)
@@ -246,7 +246,7 @@ def main() -> None:
         linewidth=1.0,
         alpha=0.9,
     )
-    ax_eq.set_ylabel("Equity (normalised to 1)")
+    ax_eq.set_ylabel("Equity (normalized to 1)")
     ax_eq.set_xlabel("Date")
     ax_eq.set_title(
         f"{symbol} equity curves from true vs predicted returns"

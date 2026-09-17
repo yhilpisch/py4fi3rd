@@ -23,20 +23,17 @@ if __package__ in {None, ""}:
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+    from assetlib.core import _ANNUALIZATION_FACTOR
     from assetlib.data import MarketData
 else:
+    from .core import _ANNUALIZATION_FACTOR
     from .data import MarketData
-
-
-def _annualization_factor(freq: str = "D") -> float:
-    if freq == "D":
-        return 252.0  # trading days per year
-    msg = f"unsupported frequency: {freq!r}"
-    raise ValueError(msg)
 
 
 @dataclass
 class RiskModel:
+    """Annualized expected returns and covariance for a universe."""
+
     mu_annual: pd.Series
     cov_annual: pd.DataFrame
 
@@ -48,10 +45,15 @@ def estimate_mu_sigma(
 ) -> RiskModel:
     """Estimate annualized expected returns and covariance."""
 
+    if freq != "D":
+        raise ValueError(
+            f"unsupported frequency: {freq!r}",
+        )  # only daily data is supported
+
     rets = market_data.returns(universe)  # daily returns
     mu = rets.mean()  # daily mean
     cov = rets.cov()  # daily covariance
-    ann = _annualization_factor(freq)  # annualization factor
+    ann = _ANNUALIZATION_FACTOR  # trading days per year
     mu_annual = (1.0 + mu) ** ann - 1.0  # compounded
     cov_annual = cov * ann  # scaled covariance
     return RiskModel(mu_annual=mu_annual, cov_annual=cov_annual)  # bundle
@@ -63,6 +65,37 @@ def equal_weight(universe: Sequence[str]) -> pd.Series:
         raise ValueError("universe must not be empty")
     w = np.repeat(1.0 / n, n)  # equal share
     return pd.Series(w, index=list(universe), name="equal_weight")
+
+
+def _project_capped_simplex(
+    weights: np.ndarray,
+    cap: float,
+) -> np.ndarray:
+    """Project onto {w >= 0, sum(w) = 1, w_i <= cap}."""
+
+    w = np.asarray(weights, dtype=float).copy()
+    w = np.clip(w, 0.0, None)  # enforce long-only
+    if cap * len(w) < 1.0:
+        raise ValueError("cap too low to allow full investment")
+    remaining = np.ones(len(w), dtype=bool)
+    out = np.zeros(len(w), dtype=float)
+    mass = 1.0
+    while True:  # iterative cap redistribution
+        if remaining.sum() == 0:
+            return out
+        s = w[remaining].sum()
+        if s == 0.0:
+            out[remaining] = mass / remaining.sum()
+            return out
+        scaled = w[remaining] * (mass / s)
+        over = scaled > cap
+        if not np.any(over):
+            out[remaining] = scaled
+            return out
+        idx_over = np.where(remaining)[0][over]
+        out[idx_over] = cap  # pin assets at the cap
+        remaining[idx_over] = False
+        mass = 1.0 - out[~remaining].sum()
 
 
 def signal_tilt(
@@ -91,11 +124,14 @@ def signal_tilt(
     if cap_per_asset is not None:
         if cap_per_asset <= 0.0:
             raise ValueError("cap_per_asset must be positive")
-        weights = weights.clip(upper=cap_per_asset)  # single-name cap
-        total = weights.sum()
-        if total == 0.0:
-            raise ValueError("all weights clipped to zero by cap_per_asset")
-        weights = weights / total  # renormalize
+        if long_only:
+            capped = _project_capped_simplex(
+                weights.to_numpy(),
+                cap_per_asset,
+            )  # respects the single-name cap
+            weights = pd.Series(capped, index=weights.index)
+        else:
+            weights = weights.clip(upper=cap_per_asset)
 
     return weights.rename("weights")
 

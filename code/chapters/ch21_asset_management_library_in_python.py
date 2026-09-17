@@ -16,7 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-UNIVERSE_SYMBOLS = ("AAPL", "NVDA", "JPM", "SPY")
+UNIVERSE_SYMBOLS = ("AAPL", "NVDA", "JPM", "TLT")
 BENCHMARK = "SPY"
 MOMENTUM_WINDOW = 20
 REBALANCE_FREQ = "W-FRI"
@@ -42,7 +42,7 @@ def main() -> None:
         Instrument(symbol="AAPL", sector="Technology"),
         Instrument(symbol="NVDA", sector="Technology"),
         Instrument(symbol="JPM", sector="Financials"),
-        Instrument(symbol="SPY", sector="Equity Index"),
+        Instrument(symbol="TLT", sector="Fixed Income"),
     ]
     universe = Universe(instruments)
 

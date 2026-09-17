@@ -211,8 +211,8 @@ def main() -> None:
     handles = handles_price + handles_diff[:1]
     labels = labels_price + labels_diff[:1]
     fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
-    fig.suptitle("Call prices and price differences", fontsize=10)
-    fig.tight_layout(rect=(0.0, 0.08, 1.0, 0.95))
+    fig.suptitle("Heston call prices and price differences by expiry", fontsize=10)
+    fig.tight_layout(rect=(0.0, 0.08, 1.0, 0.95), w_pad=2.0)
 
     figures_dir = base_dir / "assets" / "figures"
     figures_dir.mkdir(parents=True, exist_ok=True)

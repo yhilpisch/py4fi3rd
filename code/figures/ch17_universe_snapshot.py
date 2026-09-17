@@ -20,11 +20,11 @@ def load_example_holdings() -> pd.DataFrame:
     """Create a small illustrative holdings table for a simple universe."""
 
     data = {
-        "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-        "quantity": [120, 80, 150, 200],
-        "price": [180.25, 820.10, 145.30, 520.10],
-        "sector": ["Technology", "Technology", "Financials", "Equity Index"],
-        "region": ["US", "US", "US", "Global"],
+        "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+        "quantity": [120, 80, 150, 1000],
+        "price": [180.25, 820.10, 145.30, 102.50],
+        "sector": ["Technology", "Technology", "Financials", "Fixed Income"],
+        "region": ["US", "US", "US", "US"],
         "currency": ["USD", "USD", "USD", "USD"],
     }
     holdings = pd.DataFrame(data)

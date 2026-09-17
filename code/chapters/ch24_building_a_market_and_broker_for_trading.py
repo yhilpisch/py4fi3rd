@@ -11,12 +11,10 @@ https://hilpisch.com | https://linktr.ee/dyjh
 
 from __future__ import annotations
 
-import importlib
 import json
 from pathlib import Path
 from pprint import pprint
 import sys
-from types import ModuleType
 
 import pandas as pd
 
@@ -24,26 +22,18 @@ import pandas as pd
 SYMBOL = "EURUSD"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+CODE_ROOT = PROJECT_ROOT / "code"
+if str(CODE_ROOT) not in sys.path:
+    sys.path.insert(0, str(CODE_ROOT))
 
-
-def _load_engine_module() -> ModuleType:
-    """Import the local engine package in script and notebook contexts."""
-
-    try:
-        return importlib.import_module("code.engine")
-    except ModuleNotFoundError:
-        return importlib.import_module("engine")
-
-
-ENGINE = _load_engine_module()
-OrderRequest = ENGINE.OrderRequest
-PaperBroker = ENGINE.PaperBroker
-Tick = ENGINE.Tick
-TradingSession = ENGINE.TradingSession
-build_feed = ENGINE.build_feed
-estimate_gbm_parameters = ENGINE.estimate_gbm_parameters
+from engine import (  # noqa: E402
+    OrderRequest,
+    PaperBroker,
+    Tick,
+    TradingSession,
+    build_feed,
+    estimate_gbm_parameters,
+)
 
 
 def demo_strategy(session: TradingSession, tick: Tick) -> None:

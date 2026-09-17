@@ -1,7 +1,7 @@
 """Python for Finance, 3rd ed., O'Reilly (2026).
 Chapter 19 - Signals, Forecasts, and Portfolio Implementation.
 
-Figure: Annualised turnover under weekly and monthly rebalancing.
+Figure: Annualized turnover under weekly and monthly rebalancing.
 
 (c) Dr. Yves J. Hilpisch
 AI-supported by various LLMs
@@ -57,7 +57,7 @@ def weights_from_signals(signals: pd.DataFrame) -> pd.DataFrame:
 
 
 def turnover_from_weights(weights: pd.DataFrame) -> float:
-    """Compute annualised turnover from a weights table."""
+    """Compute annualized turnover from a weights table."""
 
     diff = weights.diff().abs().sum(axis=1)
     daily_turnover = 0.5 * diff
@@ -90,13 +90,13 @@ def main() -> None:
     freqs = ["Weekly", "Monthly"]
     values = [to_weekly, to_monthly]
 
-    fig, ax = plt.subplots(figsize=(5.2, 3.6))
+    fig, ax = plt.subplots(figsize=(4.8, 3.0))
     x = np.arange(len(freqs))
 
     ax.bar(x, values, width=0.6, color=["tab:blue", "tab:orange"])
     ax.set_xticks(x)
     ax.set_xticklabels(freqs)
-    ax.set_ylabel("Annualised turnover")
+    ax.set_ylabel("Annualized turnover")
     ax.set_title("Turnover under different rebalancing frequencies")
     ax.grid(True, axis="y", linestyle="--", alpha=0.3)
 

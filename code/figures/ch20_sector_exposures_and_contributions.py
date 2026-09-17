@@ -31,13 +31,13 @@ def load_prices_and_holdings() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     holdings = pd.DataFrame(
         {
-            "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-            "quantity": [120, 80, 150, 200],
+            "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+            "quantity": [120, 80, 150, 1000],
             "sector": [
                 "Technology",
                 "Technology",
                 "Financials",
-                "Equity Index",
+                "Fixed Income",
             ],
         }
     )

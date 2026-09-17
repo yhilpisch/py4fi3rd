@@ -16,11 +16,10 @@ from dataclasses import dataclass
 from typing import Protocol
 
 import numpy as np
-from numpy.typing import NDArray
 
 __all__ = ["DiscountingModel", "FlatDiscounting", "discount_factors"]
 
-FloatArray = NDArray[np.float64]
+from .types import FloatArray
 
 
 class DiscountingModel(Protocol):

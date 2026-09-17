@@ -132,15 +132,12 @@ def main() -> None:
         zorder=3,
     )
     ax.set_xlabel("Date")
-    ax.set_ylabel("Normalised equity (start = 1.0)")
+    ax.set_ylabel("Normalized equity (start = 1.0)")
     ax.set_title("Walk-Forward Backtest Equity Curves")
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(
-        loc="lower center",
-        bbox_to_anchor=(0.5, 1.02),
-        ncol=3,
+        loc="upper left",
         frameon=False,
-        borderaxespad=0.2,
     )
     fig.tight_layout()
     fig.savefig(OUT_PATH, dpi=DPI)

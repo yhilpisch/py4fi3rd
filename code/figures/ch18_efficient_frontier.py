@@ -9,7 +9,14 @@ https://hilpisch.com | https://linktr.ee/dyjh
 
 from __future__ import annotations
 
+import os
 import pathlib
+
+BASE_DIR = pathlib.Path(__file__).resolve().parents[2]
+MPLCONFIG_DIR = BASE_DIR / "_tmp" / "mplconfig"
+MPLCONFIG_DIR.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(MPLCONFIG_DIR))
+os.environ.setdefault("MPLBACKEND", "Agg")
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -55,7 +62,14 @@ def main() -> None:
     mu_annual = (1.0 + mu_daily) ** 252 - 1.0
     cov_annual = cov_daily * 252.0
 
-    Sigma = cov_annual.values
+    mu_bench_annual = float((1.0 + r_bench.mean()) ** 252 - 1.0)
+    shrink = 0.5
+    mu_shrunk = shrink * mu_annual + (1.0 - shrink) * mu_bench_annual
+    lam = 0.2
+    diag_cov = np.diag(np.diag(cov_annual.values))
+    cov_shrunk = lam * cov_annual.values + (1.0 - lam) * diag_cov
+
+    Sigma = cov_shrunk
     ones = np.ones(len(mu_annual))
     inv_Sigma_ones = np.linalg.solve(Sigma, ones)
     w_gmv = inv_Sigma_ones / (ones @ inv_Sigma_ones)
@@ -64,7 +78,7 @@ def main() -> None:
     w_eq = np.repeat(1.0 / len(mu_annual), len(mu_annual))
 
     def port_stats(weights: np.ndarray) -> tuple[float, float]:
-        mu_p = float(weights @ mu_annual.values)
+        mu_p = float(weights @ mu_shrunk.values)
         var_p = float(weights @ (Sigma @ weights))
         return mu_p, np.sqrt(var_p)
 
@@ -76,7 +90,7 @@ def main() -> None:
     n_ports = 5000
     rand_w = rng.dirichlet(alpha=np.ones(len(mu_annual)), size=n_ports)
 
-    mu_rand = rand_w @ mu_annual.values
+    mu_rand = rand_w @ mu_shrunk.values
     vol_rand = np.sqrt(np.einsum("ij,jk,ik->i", rand_w, Sigma, rand_w))
 
     fig, ax = plt.subplots(figsize=(7.0, 4.5))
@@ -92,8 +106,17 @@ def main() -> None:
     )
     ax.scatter(vol_gmv, mu_gmv, color="tab:red", s=60, marker="D", label="GMV")
 
-    ax.set_xlabel("Annualised volatility")
-    ax.set_ylabel("Annualised expected return")
+    ax.axhline(
+        mu_bench_annual,
+        color="tab:green",
+        linestyle="--",
+        linewidth=1.2,
+        alpha=0.8,
+        label="Benchmark return",
+    )
+
+    ax.set_xlabel("Annualized volatility")
+    ax.set_ylabel("Annualized expected return")
     ax.set_title("Sample efficient frontier: equal-weight vs GMV")
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(loc="best")

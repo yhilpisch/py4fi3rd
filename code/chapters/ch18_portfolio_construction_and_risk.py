@@ -87,6 +87,38 @@ def shrink_inputs(
     return mu_shrunk, cov_shrunk_df
 
 
+def project_capped_simplex(
+    weights: np.ndarray,
+    cap: float,
+) -> np.ndarray:
+    """Project weights onto a long-only capped simplex."""
+
+    weights = np.asarray(weights, dtype=float).copy()
+    weights = np.clip(weights, 0.0, None)
+    if cap * len(weights) < 1.0:
+        raise ValueError("cap too low to allow full investment")
+
+    remaining = np.ones(len(weights), dtype=bool)
+    projected = np.zeros(len(weights), dtype=float)
+    mass = 1.0
+    while True:
+        if remaining.sum() == 0:
+            return projected
+        total = weights[remaining].sum()
+        if total == 0.0:
+            projected[remaining] = mass / remaining.sum()
+            return projected
+        scaled = weights[remaining] * (mass / total)
+        over = scaled > cap
+        if not np.any(over):
+            projected[remaining] = scaled
+            return projected
+        capped_indices = np.where(remaining)[0][over]
+        projected[capped_indices] = cap
+        remaining[capped_indices] = False
+        mass = 1.0 - projected[~remaining].sum()
+
+
 def gmv_weights(cov_shrunk: pd.DataFrame) -> np.ndarray:
     """Compute global minimum-variance (GMV) portfolio weights."""
 
@@ -120,8 +152,10 @@ def mean_variance_portfolios(
     w_mv_longonly.name = "Long-only"
 
     cap = 0.35
-    w_mv_capped = w_mv_longonly.clip(upper=cap)
-    w_mv_capped = w_mv_capped / w_mv_capped.sum()
+    w_mv_capped = pd.Series(
+        project_capped_simplex(w_mv_longonly.values, cap=cap),
+        index=universe,
+    )
     w_mv_capped.name = "Long-only, capped"
     return w_mv_uncon_s, w_mv_longonly, w_mv_capped
 
@@ -205,7 +239,7 @@ def main() -> None:
     mu_annual, cov_annual, r_bench = estimate_inputs(rets, universe)
     mu_shrunk, cov_shrunk = shrink_inputs(mu_annual, cov_annual, r_bench)
 
-    print("== Shrunk expected returns (annualised) ==")
+    print("== Shrunk expected returns (annualized) ==")
     print(mu_shrunk)
     print()
 

@@ -53,16 +53,16 @@ def holdings_snapshot() -> pd.DataFrame:
 
     holdings = pd.DataFrame(
         {
-            "symbol": ["AAPL", "NVDA", "JPM", "SPY"],
-            "quantity": [120, 80, 150, 200],
-            "price": [180.25, 820.10, 145.30, 520.10],
+            "symbol": ["AAPL", "NVDA", "JPM", "TLT"],
+            "quantity": [120, 80, 150, 1000],
+            "price": [180.25, 820.10, 145.30, 102.50],
             "sector": [
                 "Technology",
                 "Technology",
                 "Financials",
-                "Equity Index",
+                "Fixed Income",
             ],
-            "region": ["US", "US", "US", "Global"],
+            "region": ["US", "US", "US", "US"],
             "currency": ["USD", "USD", "USD", "USD"],
         }
     )
@@ -81,7 +81,7 @@ def prepare_portfolio_inputs(
     holdings = holdings_snapshot()
     symbols = holdings["symbol"].tolist()
 
-    sub = prices[symbols].dropna(how="any")
+    sub = prices[symbols + ["SPY"]].dropna(how="any")
     if len(sub) > window_days:
         sub = sub.iloc[-window_days:]
 

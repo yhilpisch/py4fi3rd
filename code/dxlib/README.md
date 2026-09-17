@@ -144,7 +144,7 @@ The package root (`dxlib/__init__.py`) re-exports the primary entry points:
 - `dxlib/env.py`
   - `MarketEnvironment`: container for constants, lists, and curves
 - `dxlib/time.py`
-  - `ensure_datetime_array()`: normalises `date`/`datetime` sequences
+  - `ensure_datetime_array()`: normalizes `date`/`datetime` sequences
   - `year_fractions()`: ACT/day_count year fractions relative to origin
   - `time_to_maturity()`: scalar ACT/day_count time-to-maturity helper
 - `dxlib/random.py`

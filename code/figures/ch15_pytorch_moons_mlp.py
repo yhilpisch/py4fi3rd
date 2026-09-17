@@ -45,7 +45,7 @@ class MLP(nn.Module):
 
 
 def main() -> None:
-    """Train a small PyTorch MLP and visualise its boundary."""
+    """Train a small PyTorch MLP and visualize its boundary."""
     mpl.style.use("seaborn-v0_8")
     mpl.rcParams.update(
         {

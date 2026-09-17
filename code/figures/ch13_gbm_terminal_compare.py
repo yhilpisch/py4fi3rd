@@ -46,12 +46,14 @@ def main() -> None:
     s_T_logn = rng.lognormal(mean=mean, sigma=std, size=n_paths)
 
     fig, ax = plt.subplots(figsize=(7.5, 4))
-    bins = 80
+    bins = np.histogram_bin_edges(
+        np.concatenate([s_T_norm, s_T_logn]), bins=80
+    )
     ax.hist(
         s_T_norm,
         bins=bins,
         density=True,
-        alpha=0.6,
+        alpha=0.45,
         color="tab:blue",
         label="Standard-normal sampling",
     )
@@ -59,10 +61,27 @@ def main() -> None:
         s_T_logn,
         bins=bins,
         density=True,
-        alpha=0.4,
+        alpha=0.35,
         color="tab:orange",
         label="Lognormal sampling",
     )
+
+    # Solid step outlines on top so the two curves stay readable where the
+    # filled areas overlap.
+    for sample, color, label in (
+        (s_T_norm, "tab:blue", None),
+        (s_T_logn, "tab:orange", None),
+    ):
+        counts, edges = np.histogram(sample, bins=bins, density=True)
+        centers = 0.5 * (edges[:-1] + edges[1:])
+        ax.plot(
+            centers,
+            counts,
+            drawstyle="steps-mid",
+            color=color,
+            linewidth=1.2,
+            label=label,
+        )
 
     ax.set_title("Terminal GBM Levels from Two Simulation Schemes")
     ax.set_xlabel("Terminal price $S_T$")

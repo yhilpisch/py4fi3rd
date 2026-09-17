@@ -117,7 +117,8 @@ def main() -> None:
     axes[0].set_ylabel("Implied volatility")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False)
-    fig.tight_layout(rect=(0.0, 0.08, 1.0, 1.0))
+    fig.suptitle("Implied-vol smiles with selected strikes", fontsize=10)
+    fig.tight_layout(rect=(0.0, 0.08, 1.0, 0.95))
 
     figures_dir = base_dir / "assets" / "figures"
     figures_dir.mkdir(parents=True, exist_ok=True)

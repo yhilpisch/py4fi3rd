@@ -25,6 +25,18 @@ else:
     from .models import OrderRequest, Position, StopOrder, Tick
 
 
+def _round_floats(value: Any, digits: int = 6) -> Any:
+    """Round floats recursively to a fixed precision for stable output."""
+
+    if isinstance(value, float):
+        return round(value, digits)
+    if isinstance(value, dict):
+        return {key: _round_floats(val, digits) for key, val in value.items()}
+    if isinstance(value, list):
+        return [_round_floats(val, digits) for val in value]
+    return value
+
+
 class PaperBroker:
     """Minimal broker that executes market orders on incoming ticks."""
 
@@ -152,7 +164,7 @@ class PaperBroker:
         """Return active positions as JSON-friendly dictionaries."""
 
         active = [
-            position.to_dict()
+            _round_floats(position.to_dict())
             for position in self.positions.values()
             if abs(position.quantity) > 1e-12  # ignore flat positions
         ]
@@ -173,19 +185,21 @@ class PaperBroker:
         )  # aggregate open P&L
         equity = self.cash + positions_value  # simple cash account model
 
-        return {
-            "account_id": self.account_id,
-            "cash": self.cash,
-            "equity": equity,
-            "realized_pnl": self._realized_pnl,
-            "unrealized_pnl": unrealized,
-            "positions": self.get_positions(),
-            "open_stop_orders": [
-                order.to_dict()
-                for order in self.stop_orders.values()
-                if order.status == "working"
-            ],
-        }
+        return _round_floats(
+            {
+                "account_id": self.account_id,
+                "cash": self.cash,
+                "equity": equity,
+                "realized_pnl": self._realized_pnl,
+                "unrealized_pnl": unrealized,
+                "positions": self.get_positions(),
+                "open_stop_orders": [
+                    order.to_dict()
+                    for order in self.stop_orders.values()
+                    if order.status == "working"
+                ],
+            }
+        )
 
     def _execute_market_order(
         self,
@@ -203,70 +217,28 @@ class PaperBroker:
             position = Position(symbol=order.symbol)
             self.positions[order.symbol] = position
 
-        realized_change = self._update_position(
-            position=position,
+        realized_change = position.apply_fill(
             signed_quantity=signed_quantity,
             fill_price=float(fill_price),
         )
         self._realized_pnl += realized_change  # broker-level realized P&L
         position.market_price = self.last_tick[order.symbol].mid  # refresh mark
 
-        return {
-            "account_id": self.account_id,
-            "event": "order_filled",
-            "timestamp": timestamp.isoformat(),
-            "order_id": (
-                order.client_order_id or f"ORD-{next(self._order_ids):06d}"
-            ),
-            "order": order.to_dict(),
-            "fill": {
-                "price": float(fill_price),
-                "quantity": float(order.quantity),
-                "side": order.side,
-            },
-            "realized_pnl_change": realized_change,
-            "account_snapshot": self.get_account_snapshot(),
-        }
-
-    @staticmethod
-    def _update_position(
-        position: Position,
-        signed_quantity: float,
-        fill_price: float,
-    ) -> float:
-        old_qty = position.quantity
-        new_qty = old_qty + signed_quantity
-        realized_change = 0.0
-
-        if abs(old_qty) < 1e-12:
-            position.quantity = new_qty  # opening trade from flat
-            position.avg_price = (
-                fill_price if abs(new_qty) > 1e-12 else 0.0
-            )  # initialize cost basis
-            return realized_change
-
-        if old_qty * signed_quantity > 0.0:
-            total_abs = abs(old_qty) + abs(signed_quantity)  # scale-in trade
-            position.avg_price = (
-                abs(old_qty) * position.avg_price
-                + abs(signed_quantity) * fill_price
-            ) / total_abs  # weighted-average cost basis
-            position.quantity = new_qty
-            return realized_change
-
-        closed_qty = min(abs(old_qty), abs(signed_quantity))  # closing leg size
-        realized_change = closed_qty * (fill_price - position.avg_price)
-        if old_qty < 0.0:
-            realized_change *= -1.0  # short P&L has inverted sign convention
-
-        position.realized_pnl += realized_change  # position-level realized P&L
-        position.quantity = new_qty  # residual or reversed position
-
-        if abs(new_qty) < 1e-12:
-            position.quantity = 0.0  # snap tiny floats back to flat
-            position.avg_price = 0.0
-            position.market_price = 0.0
-        elif old_qty * new_qty < 0.0:
-            position.avg_price = fill_price  # reversal starts new cost basis
-
-        return realized_change
+        return _round_floats(
+            {
+                "account_id": self.account_id,
+                "event": "order_filled",
+                "timestamp": timestamp.isoformat(),
+                "order_id": (
+                    order.client_order_id or f"ORD-{next(self._order_ids):06d}"
+                ),
+                "order": order.to_dict(),
+                "fill": {
+                    "price": float(fill_price),
+                    "quantity": float(order.quantity),
+                    "side": order.side,
+                },
+                "realized_pnl_change": realized_change,
+                "account_snapshot": self.get_account_snapshot(),
+            }
+        )

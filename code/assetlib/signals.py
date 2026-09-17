@@ -37,57 +37,67 @@ class SignalEngine:
 
     @property
     def returns(self) -> pd.DataFrame:
+        """Daily simple returns for the configured universe."""
+
         return self.market_data.returns(self.universe)  # base daily returns
 
     def momentum(self, window: int = 20) -> pd.DataFrame:
+        """Rolling mean of daily returns over `window` days."""
+
         rets = self.returns  # reuse cached returns
         return rets.rolling(window).mean()  # simple momentum
 
     def volatility(self, window: int = 60) -> pd.DataFrame:
+        """Rolling standard deviation of daily returns over `window` days."""
+
         rets = self.returns
         return rets.rolling(window).std()  # rolling volatility
 
     def forward_returns(self, horizon: int = 5) -> pd.DataFrame:
+        """Forward-summed returns over the next `horizon` days."""
+
         rets = self.returns
         return rets.shift(-horizon).rolling(horizon).sum()  # forward sums
 
-    @staticmethod
-    def zscore(signal_df: pd.DataFrame) -> pd.DataFrame:
-        def _z(row: pd.Series) -> pd.Series:
-            if row.isna().all():
-                return row
-            mean = row.mean()
-            std = row.std(ddof=0)
-            if std == 0.0:
-                return pd.Series(
-                    np.zeros(len(row)),
-                    index=row.index,
-                )  # flat when no dispersion
-            return (row - mean) / std  # z-scores
 
-        return signal_df.apply(_z, axis=1)
+def zscore(signal_df: pd.DataFrame) -> pd.DataFrame:
+    """Standardize each cross-section (row) to zero mean, unit variance."""
 
-    @staticmethod
-    def information_coefficient(
-        signal_df: pd.DataFrame,
-        target_df: pd.DataFrame,
-        method: str = "spearman",
-    ) -> pd.Series:
-        """Daily cross-sectional information coefficient."""
+    def _z(row: pd.Series) -> pd.Series:
+        if row.isna().all():
+            return row
+        mean = row.mean()
+        std = row.std(ddof=0)
+        if std == 0.0:
+            return pd.Series(
+                np.zeros(len(row)),
+                index=row.index,
+            )  # flat when no dispersion
+        return (row - mean) / std  # z-scores
 
-        if signal_df.shape != target_df.shape:
-            raise ValueError(
-                "signal_df and target_df must have the same shape",
-            )
+    return signal_df.apply(_z, axis=1)
 
-        aligned_signal, aligned_target = signal_df.align(
-            target_df,
-            join="inner",
-        )  # ensure aligned index/columns
-        rows = []
-        for date, x in aligned_signal.iterrows():
-            y = aligned_target.loc[date]  # matching targets
-            if x.isna().any() or y.isna().any():
-                continue
-            rows.append(x.rank().corr(y, method=method))  # cross-sectional IC
-        return pd.Series(rows, name="ic")
+
+def information_coefficient(
+    signal_df: pd.DataFrame,
+    target_df: pd.DataFrame,
+    method: str = "spearman",
+) -> pd.Series:
+    """Daily cross-sectional information coefficient between signal and target."""
+
+    if signal_df.shape != target_df.shape:
+        raise ValueError(
+            "signal_df and target_df must have the same shape",
+        )
+
+    aligned_signal, aligned_target = signal_df.align(
+        target_df,
+        join="inner",
+    )  # ensure aligned index/columns
+    rows = []
+    for date, x in aligned_signal.iterrows():
+        y = aligned_target.loc[date]  # matching targets
+        if x.isna().any() or y.isna().any():
+            continue
+        rows.append(x.rank().corr(y, method=method))  # cross-sectional IC
+    return pd.Series(rows, name="ic")

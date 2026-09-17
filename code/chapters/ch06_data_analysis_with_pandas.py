@@ -73,7 +73,7 @@ def summarize_by_symbol(df: pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     """Run tiny in-memory examples to sanity-check the helpers."""
 
-    idx = pd.to_datetime(["2026-01-02", "2026-01-05", "2026-01-06"])
+    idx = pd.to_datetime(["2027-01-02", "2027-01-05", "2027-01-06"])
     prices = pd.Series([100.0, 101.5, 103.0], index=idx, name="price")
 
     rets = compute_simple_returns(prices)
@@ -84,7 +84,7 @@ def main() -> None:
 
     quotes = pd.DataFrame(
         {
-            "date": ["2026-01-02", "2026-01-02", "2026-01-05"],
+            "date": ["2027-01-02", "2027-01-02", "2027-01-05"],
             "symbol": ["AAPL", "MSFT", "AAPL"],
             "price": [180.0, 350.0, 182.0],
         }
@@ -96,4 +96,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

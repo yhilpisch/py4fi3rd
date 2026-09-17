@@ -11,13 +11,11 @@ https://hilpisch.com | https://linktr.ee/dyjh
 
 from __future__ import annotations
 
-import importlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
 import sys
 from typing import Any
-from types import ModuleType
 
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -28,25 +26,17 @@ from sklearn.preprocessing import StandardScaler
 SYMBOL = "EURUSD"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+CODE_ROOT = PROJECT_ROOT / "code"
+if str(CODE_ROOT) not in sys.path:
+    sys.path.insert(0, str(CODE_ROOT))
 
-
-def _load_engine_module() -> ModuleType:
-    """Import the local engine package in script and notebook contexts."""
-
-    try:
-        return importlib.import_module("code.engine")
-    except ModuleNotFoundError:
-        return importlib.import_module("engine")
-
-
-ENGINE = _load_engine_module()
-HistoricalFeed = ENGINE.HistoricalFeed
-PaperBroker = ENGINE.PaperBroker
-Tick = ENGINE.Tick
-TradingSession = ENGINE.TradingSession
-build_feed = ENGINE.build_feed
+from engine import (  # noqa: E402
+    HistoricalFeed,
+    PaperBroker,
+    Tick,
+    TradingSession,
+    build_feed,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -145,8 +135,6 @@ class DeploymentLogger:
 
     def to_frame(self) -> pd.DataFrame:
         frame = pd.DataFrame(self.events)
-        if frame.empty:
-            return frame
         return frame.sort_values("timestamp").reset_index(drop=True)
 
     def write_jsonl(self, path: Path) -> Path:
@@ -330,7 +318,7 @@ def build_monitoring_report(
     session: TradingSession,
     logger: DeploymentLogger,
 ) -> pd.Series:
-    """Summarise the deployment run in a compact monitoring report."""
+    """Summarize the deployment run in a compact monitoring report."""
 
     logs = logger.to_frame()
     snapshot = session.broker.get_account_snapshot()

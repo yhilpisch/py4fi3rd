@@ -34,20 +34,21 @@ import pandas as pd
 
 from assetlib.data import MarketData
 from assetlib.signals import SignalEngine
+from assetlib.signals import zscore
 from assetlib.portfolio import equal_weight, signal_tilt
 from assetlib.backtest import BacktestEngine
 from assetlib.reporting import performance_report
 
-universe = ["AAPL", "MSFT", "AMZN", "GOOG"]
+universe = ["AAPL", "JPM", "TLT"]
 benchmark = "SPY"
 
 md = MarketData.load()  # default: data/eod_data.csv (project dataset)
 sig = SignalEngine(market_data=md, universe=universe)
 
 mom = sig.momentum(window=20)
-z = SignalEngine.zscore(mom)
+z = zscore(mom)
 
-rebalance = "M"
+rebalance = "ME"
 raw_weights = z.resample(rebalance).last().dropna(how="any")
 target_weights = raw_weights.apply(signal_tilt, axis=1)
 

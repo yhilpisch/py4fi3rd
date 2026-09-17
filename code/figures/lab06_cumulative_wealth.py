@@ -47,7 +47,8 @@ def main() -> None:
     )
     ax.plot(wealth.index, wealth["SPY"], linewidth=1.8, label="SPY")
     ax.set_title("Cumulative wealth: hedge fund index vs SPY")
-    ax.set_ylabel("Growth of 1.0")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Cumulative wealth (start = 1.0)")
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(loc="upper left")
 

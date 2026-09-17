@@ -83,7 +83,7 @@ def main() -> None:
     ax_bottom.grid(True, linestyle="--", alpha=0.3)
     ax_bottom.legend(
         loc="upper left",
-        title=f"Annualised TE ≈ {te_annual:.1%}",
+        title=f"Annualized TE ≈ {te_annual:.1%}",
     )
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]

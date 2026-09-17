@@ -15,6 +15,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+# Run-from-source fallback: allows executing this module directly
+# (python code/dxlib/curves.py). It places the parent directory (code/)
+# on sys.path and sets __package__ so that relative imports resolve.
+# When dxlib is imported as a package from the project root, the guard
+# is False and the block is skipped entirely.
 if __name__ == "__main__" and __package__ is None:
     package_dir = Path(__file__).resolve().parent
     sys.path = [
@@ -66,7 +71,7 @@ class CalibrationDiagnostics:
     failures: int
     best_loss: float
     best_stage: str
-    loss_path: tuple[float, ...]
+    loss_path: list[float]
 
 
 @dataclass(frozen=True, slots=True)
@@ -89,12 +94,23 @@ class JumpDiffusionParams:
 class JumpDiffusionBounds:
     volatility: tuple[float, float] = (0.05, 0.60)
     jump_intensity: tuple[float, float] = (0.0, 8.0)
-    # Widened from (-0.25, 0.05).
     jump_mean: tuple[float, float] = (-0.40, 0.10)
-    jump_std: tuple[float, float] = (0.01, 0.80)  # widened from (0.05, 0.60)
+    jump_std: tuple[float, float] = (0.01, 0.80)
 
 
 MIN_CALIBRATION_STEPS = 24
+
+
+def _sample_uniform(
+    rng: np.random.Generator,
+    low: float,
+    high: float,
+    n: int,
+) -> np.ndarray:
+    """Draw n uniform samples in [low, high) from the given generator."""
+
+    return low + (high - low) * rng.random(n)
+
 
 
 def _require_surface_columns(surface_df: pd.DataFrame) -> None:
@@ -299,15 +315,14 @@ def calibrate_jump_diffusion_single_expiry(
 
     rng = np.random.default_rng(seed)
 
-    def sample(low: float, high: float, n: int) -> np.ndarray:
-        return low + (high - low) * rng.random(n)
-
     candidates = pd.DataFrame(
         {
-            "volatility": sample(*bounds.volatility, n_candidates),
-            "jump_intensity": sample(*bounds.jump_intensity, n_candidates),
-            "jump_mean": sample(*bounds.jump_mean, n_candidates),
-            "jump_std": sample(*bounds.jump_std, n_candidates),
+            "volatility": _sample_uniform(rng, *bounds.volatility, n_candidates),
+            "jump_intensity": _sample_uniform(
+                rng, *bounds.jump_intensity, n_candidates
+            ),
+            "jump_mean": _sample_uniform(rng, *bounds.jump_mean, n_candidates),
+            "jump_std": _sample_uniform(rng, *bounds.jump_std, n_candidates),
         }
     )
 
@@ -398,7 +413,7 @@ def calibrate_jump_diffusion_single_expiry(
         failures=failures,
         best_loss=best_loss,
         best_stage=best_stage,
-        loss_path=tuple(loss_path),
+        loss_path=loss_path,
     )
     return best_params, _with_diagnostics(best_table, diagnostics)
 
@@ -423,16 +438,13 @@ def calibrate_heston_global(
 
     rng = np.random.default_rng(seed)
 
-    def sample(low: float, high: float, n: int) -> np.ndarray:
-        return low + (high - low) * rng.random(n)
-
     candidates = pd.DataFrame(
         {
-            "kappa": sample(*bounds.kappa, n_candidates),
-            "theta": sample(*bounds.theta, n_candidates),
-            "vol_of_vol": sample(*bounds.vol_of_vol, n_candidates),
-            "rho": sample(*bounds.rho, n_candidates),
-            "v0": sample(*bounds.v0, n_candidates),
+            "kappa": _sample_uniform(rng, *bounds.kappa, n_candidates),
+            "theta": _sample_uniform(rng, *bounds.theta, n_candidates),
+            "vol_of_vol": _sample_uniform(rng, *bounds.vol_of_vol, n_candidates),
+            "rho": _sample_uniform(rng, *bounds.rho, n_candidates),
+            "v0": _sample_uniform(rng, *bounds.v0, n_candidates),
         }
     )
 
@@ -524,7 +536,7 @@ def calibrate_heston_global(
         failures=failures,
         best_loss=best_loss,
         best_stage=best_stage,
-        loss_path=tuple(loss_path),
+        loss_path=loss_path,
     )
     return best_params, _with_diagnostics(best_table, diagnostics)
 
@@ -633,7 +645,7 @@ def calibrate_heston_local_v0(
             failures=failures,
             best_loss=best_loss,
             best_stage=mode,
-            loss_path=tuple(loss_path),
+            loss_path=loss_path,
         )
 
     out = pd.concat(tables, axis=0, ignore_index=True)
@@ -780,7 +792,7 @@ def calibrate_heston_local_v0_rho(
             failures=failures,
             best_loss=best_loss,
             best_stage=best_stage,
-            loss_path=tuple(loss_path),
+            loss_path=loss_path,
         )
 
     out = pd.concat(tables, axis=0, ignore_index=True)
@@ -912,7 +924,7 @@ def calibrate_heston_local_theta_v0_rho(
             failures=failures,
             best_loss=best_loss,
             best_stage=best_stage,
-            loss_path=tuple(loss_path),
+            loss_path=loss_path,
         )
 
     out = pd.concat(tables, axis=0, ignore_index=True)

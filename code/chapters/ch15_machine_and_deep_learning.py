@@ -24,6 +24,7 @@ try:
     from sklearn.ensemble import RandomForestRegressor
     from sklearn.linear_model import LinearRegression, LogisticRegression
     from sklearn.metrics import accuracy_score, mean_squared_error
+    from sklearn.model_selection import train_test_split
 except ImportError:  # pragma: no cover - optional dependency
     KMeans = None
     PCA = None
@@ -32,6 +33,7 @@ except ImportError:  # pragma: no cover - optional dependency
     LogisticRegression = None
     accuracy_score = None
     mean_squared_error = None
+    train_test_split = None
     make_blobs = None
     make_moons = None
     make_regression = None
@@ -145,44 +147,44 @@ def require_torch() -> None:
         )
 
 
-def torch_moons_mlp(seed: int = 2027, epochs: int = 200) -> float:
+def torch_moons_mlp(seed: int = 2027, epochs: int = 500) -> float:
     """Train a small MLP on the two-moons dataset and return test accuracy."""
 
     require_sklearn()
     require_torch()
 
-    X, y = make_moons(n_samples=500, noise=0.25, random_state=seed)
-    rng = np.random.default_rng(seed=seed)
-    idx = rng.permutation(X.shape[0])
-    n_train = int(0.7 * X.shape[0])
-    train_idx, test_idx = idx[:n_train], idx[n_train:]
+    X, y = make_moons(n_samples=600, noise=0.25, random_state=seed)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.3,
+        random_state=seed,
+        stratify=y,
+    )
 
     torch.manual_seed(seed)
-    X_train = torch.tensor(X[train_idx], dtype=torch.float32)
-    y_train = torch.tensor(y[train_idx], dtype=torch.float32).reshape(-1, 1)
-    X_test = torch.tensor(X[test_idx], dtype=torch.float32)
-    y_test = torch.tensor(y[test_idx], dtype=torch.float32).reshape(-1, 1)
+    X_train = torch.tensor(X_train, dtype=torch.float32)
+    y_train = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
+    X_test = torch.tensor(X_test, dtype=torch.float32)
+    y_test = torch.tensor(y_test, dtype=torch.float32).reshape(-1, 1)
 
     model = nn.Sequential(
-        nn.Linear(2, 16),
-        nn.Tanh(),
-        nn.Linear(16, 16),
-        nn.Tanh(),
-        nn.Linear(16, 1),
-        nn.Sigmoid(),
+        nn.Linear(2, 32),
+        nn.ReLU(),
+        nn.Linear(32, 1),
     )
-    loss_fn = nn.BCELoss()
+    loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
     for _ in range(epochs):
         optimizer.zero_grad()
-        pred = model(X_train)
-        loss = loss_fn(pred, y_train)
+        logits = model(X_train)
+        loss = loss_fn(logits, y_train)
         loss.backward()
         optimizer.step()
 
     with torch.no_grad():
-        pred_test = (model(X_test) >= 0.5).float()
+        pred_test = (torch.sigmoid(model(X_test)) >= 0.5).float()
         accuracy = (pred_test.eq(y_test).float().mean()).item()
     return float(accuracy)
 

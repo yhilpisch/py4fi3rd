@@ -16,6 +16,8 @@ from typing import Iterable, List, Mapping, Optional, Sequence
 
 import pandas as pd
 
+_ANNUALIZATION_FACTOR = 252.0  # trading days per year
+
 
 @dataclass(frozen=True)
 class Instrument:

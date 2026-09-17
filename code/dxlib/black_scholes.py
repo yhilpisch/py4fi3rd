@@ -12,6 +12,10 @@ https://hilpisch.com | https://linktr.ee/dyjh
 from __future__ import annotations
 
 import math
+from typing import Literal
+
+_SIGMA_FLOOR = 1.0e-8  # smallest volatility considered in the inverter
+_MAX_BRACKET_DOUBLINGS = 50  # cap for the adaptive upper bracket
 
 __all__ = [
     "norm_cdf",
@@ -36,7 +40,7 @@ def bs_price_forward(
     maturity: float,
     volatility: float,
     *,
-    option_type: str = "call",
+    option_type: Literal["call", "put"] = "call",
     discount_factor: float = 1.0,
 ) -> float:
     """
@@ -86,9 +90,9 @@ def implied_vol_forward(
     strike: float,
     maturity: float,
     *,
-    option_type: str = "call",
+    option_type: Literal["call", "put"] = "call",
     discount_factor: float = 1.0,
-    tol: float = 1.0e-8,
+    tol: float = _SIGMA_FLOOR,
     max_iter: int = 100,
 ) -> float:
     """
@@ -116,9 +120,9 @@ def implied_vol_forward(
     if target < intrinsic:
         return 0.0
 
-    low = 1.0e-8
+    low = _SIGMA_FLOOR
     high = 1.0
-    for _ in range(50):
+    for _ in range(_MAX_BRACKET_DOUBLINGS):
         high_price = bs_price_forward(
             forward,
             strike,

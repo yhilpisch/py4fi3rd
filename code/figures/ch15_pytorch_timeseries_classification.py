@@ -126,7 +126,7 @@ def main() -> None:
     )
     X_train, X_test, y_train, y_test, dates_train, dates_test = split
 
-    # Standardise lagged-return windows based on the training data only.
+    # Standardize lagged-return windows based on the training data only.
     scaler = StandardScaler()
     X_train_flat = X_train.reshape(X_train.shape[0], -1)
     X_test_flat = X_test.reshape(X_test.shape[0], -1)
@@ -239,7 +239,7 @@ def main() -> None:
     )
 
     cbar = fig_cm.colorbar(im, ax=ax_cm, fraction=0.046, pad=0.04)
-    cbar.set_label("Row-normalised freq.", fontsize=7)
+    cbar.set_label("Row-normalized freq.", fontsize=7)
     cbar.ax.tick_params(labelsize=7)
 
     outfile_cm = (

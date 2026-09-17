@@ -1,7 +1,7 @@
 """Python for Finance, 3rd ed., O'Reilly (2026).
 Chapter 19 - Signals, Forecasts, and Portfolio Implementation.
 
-Figure: Standardised signals and corresponding long-only portfolio weights.
+Figure: Standardized signals and corresponding long-only portfolio weights.
 
 (c) Dr. Yves J. Hilpisch
 AI-supported by various LLMs
@@ -71,16 +71,18 @@ def main() -> None:
     width = 0.35
 
     fig, (ax1, ax2) = plt.subplots(
-        nrows=2,
-        ncols=1,
-        figsize=(6.4, 5.2),
-        sharex=True,
+        nrows=1,
+        ncols=2,
+        figsize=(9.5, 4.0),
+        sharey=False,
     )
 
     ax1.bar(x, z_scores.values, width, color="tab:blue")
     ax1.axhline(0.0, color="black", linewidth=0.8, alpha=0.8)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(universe)
     ax1.set_ylabel("Momentum z-score")
-    ax1.set_title("Standardised signals")
+    ax1.set_title("Standardized signals")
     ax1.grid(True, axis="y", linestyle="--", alpha=0.3)
 
     ax2.bar(x, weights.values, width, color="tab:green")
@@ -102,4 +104,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

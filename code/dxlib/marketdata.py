@@ -17,6 +17,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+# Run-from-source fallback: allows executing this module directly
+# (python code/dxlib/curves.py). It places the parent directory (code/)
+# on sys.path and sets __package__ so that relative imports resolve.
+# When dxlib is imported as a package from the project root, the guard
+# is False and the block is skipped entirely.
 if __name__ == "__main__" and __package__ is None:
     package_dir = Path(__file__).resolve().parent
     sys.path = [
@@ -203,9 +208,11 @@ def select_small_surface(
 
         strikes_out: list[float] = []
         for target in targets:
-            work = eligible.copy()
-            work["dist"] = (work["MNY"] - float(target)).abs()
-            work = work.sort_values("dist")
+            work = (
+                eligible.copy()
+                .assign(dist=(eligible["MNY"] - float(target)).abs())
+                .sort_values("dist")
+            )
             for strike in work["STRIKE"].to_numpy(dtype=float):
                 if float(strike) not in strikes_out:
                     strikes_out.append(float(strike))
@@ -214,12 +221,12 @@ def select_small_surface(
                 break
 
         if len(strikes_out) < n:
-            remaining = eligible.copy()
-            remaining = remaining[~remaining["STRIKE"].isin(strikes_out)]
-            remaining = remaining.assign(
-                abs_mny=(remaining["MNY"] - 1.0).abs(),
+            remaining = (
+                eligible.copy()
+                .loc[lambda frame: ~frame["STRIKE"].isin(strikes_out)]
+                .assign(abs_mny=lambda frame: (frame["MNY"] - 1.0).abs())
+                .sort_values("abs_mny")
             )
-            remaining = remaining.sort_values("abs_mny")
             for strike in remaining["STRIKE"].to_numpy(dtype=float):
                 strikes_out.append(float(strike))
                 if len(strikes_out) >= n:
@@ -245,11 +252,12 @@ def select_small_surface(
             min_price=expiry_min_mid,
         )
 
-        parity = parity.copy()
-        parity["TTM"] = float(ttm)
-        parity["DF"] = float(df)
-        parity["FWD"] = float(fwd)
-        parity["MNY"] = parity["STRIKE"] / float(fwd)
+        parity = parity.copy().assign(
+            TTM=float(ttm),
+            DF=float(df),
+            FWD=float(fwd),
+            MNY=lambda frame: frame["STRIKE"] / float(fwd),
+        )
 
         opt = str(calibrate_to).strip().upper()
         if opt not in {"CALL", "PUT"}:
@@ -282,8 +290,10 @@ def select_small_surface(
                 discount_factor=float(row["DF"]),
             )
             ivs.append(iv)
-        small["CALIBRATE_TO"] = opt
-        small["IMPL_VOL"] = np.array(ivs, dtype=float)
+        small = small.assign(
+            CALIBRATE_TO=opt,
+            IMPL_VOL=np.array(ivs, dtype=float),
+        )
         results.append(small)
 
     out = pd.concat(results, axis=0, ignore_index=True)

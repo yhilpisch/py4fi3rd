@@ -129,7 +129,7 @@ def main() -> None:
         markersize=3.5,
         label="Jump diffusion",
     )
-    ax.set_title(f"Expiry {EXPIRY.isoformat()}")
+    ax.set_title(f"Jump-diffusion fit — expiry {EXPIRY.isoformat()}")
     ax.set_xlabel("Moneyness K/F")
     ax.set_ylabel("Implied volatility")
     ax.grid(True, linestyle="--", alpha=0.25)

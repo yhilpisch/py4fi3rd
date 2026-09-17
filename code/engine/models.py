@@ -17,15 +17,15 @@ from typing import Any
 import pandas as pd
 
 
-def _serialise_value(value: Any) -> Any:
+def _serialize_value(value: Any) -> Any:
     """Convert selected Python objects to JSON-friendly values."""
 
     if isinstance(value, pd.Timestamp):
         return value.isoformat()  # stable JSON-friendly timestamp format
     if isinstance(value, dict):
-        return {key: _serialise_value(val) for key, val in value.items()}
+        return {key: _serialize_value(val) for key, val in value.items()}
     if isinstance(value, list):
-        return [_serialise_value(val) for val in value]
+        return [_serialize_value(val) for val in value]
     return value
 
 
@@ -51,9 +51,9 @@ class Tick:
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)  # start from dataclass fields only
-        data["mid"] = self.mid  # expose derived mid price explicitly
-        data["spread"] = self.spread  # expose current bid-ask spread
-        return _serialise_value(data)
+        data["mid"] = round(self.mid, 6)  # expose derived mid price explicitly
+        data["spread"] = round(self.spread, 6)  # derived bid-ask spread
+        return _serialize_value(data)
 
 
 @dataclass(slots=True)
@@ -69,7 +69,7 @@ class OrderRequest:
     meta: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return _serialise_value(asdict(self))
+        return _serialize_value(asdict(self))
 
 
 @dataclass(slots=True)
@@ -84,7 +84,7 @@ class StopOrder:
     status: str = "working"
 
     def to_dict(self) -> dict[str, Any]:
-        return _serialise_value(asdict(self))
+        return _serialize_value(asdict(self))
 
 
 @dataclass(slots=True)
@@ -101,12 +101,55 @@ class Position:
     def market_value(self) -> float:
         return self.quantity * self.market_price
 
+    def apply_fill(
+        self,
+        signed_quantity: float,
+        fill_price: float,
+    ) -> float:
+        """Apply a signed fill and return the realized P&L change."""
+        old_qty = self.quantity
+        new_qty = old_qty + signed_quantity
+        realized_change = 0.0
+
+        if abs(old_qty) < 1e-12:
+            self.quantity = new_qty  # opening trade from flat
+            self.avg_price = (
+                fill_price if abs(new_qty) > 1e-12 else 0.0
+            )  # initialize cost basis
+            return realized_change
+
+        if old_qty * signed_quantity > 0.0:
+            total_abs = abs(old_qty) + abs(signed_quantity)  # scale-in trade
+            self.avg_price = (
+                abs(old_qty) * self.avg_price
+                + abs(signed_quantity) * fill_price
+            ) / total_abs  # weighted-average cost basis
+            self.quantity = new_qty
+            return realized_change
+
+        closed_qty = min(abs(old_qty), abs(signed_quantity))  # closing leg size
+        realized_change = closed_qty * (fill_price - self.avg_price)
+        if old_qty < 0.0:
+            realized_change *= -1.0  # short P&L has inverted sign convention
+
+        self.realized_pnl += realized_change  # position-level realized P&L
+        self.quantity = new_qty  # residual or reversed position
+
+        if abs(new_qty) < 1e-12:
+            self.quantity = 0.0  # snap tiny floats back to flat
+            self.avg_price = 0.0
+            self.market_price = 0.0
+        elif old_qty * new_qty < 0.0:
+            self.avg_price = fill_price  # reversal starts new cost basis
+
+        return realized_change
+
     @property
     def unrealized_pnl(self) -> float:
         return self.quantity * (self.market_price - self.avg_price)
 
     def to_dict(self) -> dict[str, Any]:
-        return _serialise_value(
+        return _serialize_value(
             {
                 "symbol": self.symbol,
                 "quantity": self.quantity,
@@ -114,6 +157,6 @@ class Position:
                 "market_price": self.market_price,  # latest mid mark
                 "market_value": self.market_value,  # marked market value
                 "realized_pnl": self.realized_pnl,
-                "unrealized_pnl": self.unrealized_pnl,  # open P&L at mark
+                "unrealized_pnl": self.unrealized_pnl,  # open profit/loss at mark
             }
         )

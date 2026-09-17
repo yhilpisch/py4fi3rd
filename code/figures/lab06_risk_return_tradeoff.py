@@ -41,7 +41,7 @@ def main() -> None:
         ["Hedge fund index", "SPY", "60/40 SPY-IEF", "Levered hedge fund"]
     ]
 
-    fig, axes = plt.subplots(1, 3, figsize=(8.4, 3.4), sharex=True)
+    fig, axes = plt.subplots(1, 3, figsize=(8.4, 3.6), sharex=True)
     columns = [
         ("annualized_return", "Annualized return"),
         ("annualized_vol", "Annualized volatility"),
@@ -51,10 +51,14 @@ def main() -> None:
     x = np.arange(len(stats.index))
     labels = ["HF", "SPY", "60/40", "Levered HF"]
 
-    for ax, (column, title) in zip(axes, columns):
+    fig.suptitle(
+        "Risk and return trade-offs across hedge fund comparison scenarios"
+    )
+
+    for ax, (column, ylabel) in zip(axes, columns):
         values = stats[column].to_numpy()
         ax.bar(x, values, color=colors)
-        ax.set_title(title)
+        ax.set_ylabel(ylabel)
         ax.set_xticks(x)
         ax.set_xticklabels(labels, rotation=20, ha="right")
         ax.yaxis.set_major_formatter(mpl.ticker.PercentFormatter(1.0))

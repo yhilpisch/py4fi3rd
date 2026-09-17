@@ -48,7 +48,7 @@ def main() -> None:
     # Shuffled x-values with the same underlying curve.
     perm = rng.permutation(x.shape[0])
     x_shuffled = x[perm]
-    y_shuffled = y_true[perm] + 0.15 * rng.standard_normal(x.shape[0])
+    y_shuffled = y_noisy[perm]
 
     X_shuffled = np.column_stack(
         [

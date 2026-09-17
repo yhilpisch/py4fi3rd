@@ -21,7 +21,7 @@ from sklearn.datasets import make_blobs
 
 
 def main() -> None:
-    """Visualise K-means clustering results before and after PCA."""
+    """Visualize K-means clustering results before and after PCA."""
     mpl.style.use("seaborn-v0_8")
     mpl.rcParams.update(
         {
@@ -89,4 +89,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

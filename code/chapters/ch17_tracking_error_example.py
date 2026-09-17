@@ -19,7 +19,7 @@ import pandas as pd
 
 
 def main() -> None:
-    """Compute and print annualised tracking error for a simple example."""
+    """Compute and print annualized tracking error for a simple example."""
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]
     local = base_dir / "data" / "eod_data.csv"
@@ -50,7 +50,7 @@ def main() -> None:
 
     te_annual = float(active.std(ddof=1) * np.sqrt(252.0))
 
-    print(f"Annualised tracking error: {te_annual:.6f} ({te_annual:.2%})")
+    print(f"Annualized tracking error: {te_annual:.6f} ({te_annual:.2%})")
     assert te_annual > 0, "tracking error must be positive"
     assert np.isfinite(te_annual), "tracking error must be finite"
 

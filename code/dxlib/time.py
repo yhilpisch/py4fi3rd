@@ -13,46 +13,38 @@ from __future__ import annotations
 
 import datetime as dt
 from collections.abc import Iterable, Sequence
-from typing import overload
 
 import numpy as np
 
 __all__ = ["ensure_datetime_array", "year_fractions", "time_to_maturity"]
 
-
-@overload
-def ensure_datetime_array(times: Sequence[dt.datetime]) -> np.ndarray: ...
+_SECONDS_PER_DAY = 86_400.0
 
 
-@overload
-def ensure_datetime_array(times: Sequence[dt.date]) -> np.ndarray: ...
+def _to_datetime(value: dt.date) -> dt.datetime:
+    """Return ``value`` as ``datetime.datetime`` (dates become midnight)."""
+    if isinstance(value, dt.datetime):
+        return value
+    if isinstance(value, dt.date):
+        return dt.datetime.combine(value, dt.time())
+    raise TypeError(
+        f"Unsupported time entry {value!r} (type {type(value).__name__})"
+    )
 
 
-def ensure_datetime_array(
-    times: Sequence[dt.date | dt.datetime],
-) -> np.ndarray:
+def ensure_datetime_array(times: Sequence[dt.date]) -> np.ndarray:
     """
-    Convert ``datetime``/``date`` objects to a sorted NumPy array.
+    Convert date-like objects to a sorted NumPy array of datetimes.
 
-    The array uses dtype ``object`` and contains ``datetime.datetime`` objects.
+    ``datetime.datetime`` instances (a subclass of ``date``) are preserved
+    as-is; plain dates become midnight timestamps. The input order does not
+    matter: the result is sorted in ascending order.
     """
 
     if not isinstance(times, Iterable):
         raise TypeError("times must be an iterable of datetime/date objects")
 
-    normalized: list[dt.datetime] = []
-    for value in times:
-        if isinstance(value, dt.datetime):
-            normalized.append(value)
-        elif isinstance(value, dt.date):
-            normalized.append(dt.datetime.combine(value, dt.time()))
-        else:  # pragma: no cover
-            msg = (
-                "Unsupported time entry "
-                f"{value!r} (type {type(value).__name__})"
-            )
-            raise TypeError(msg)
-
+    normalized = [_to_datetime(value) for value in times]
     if not normalized:
         raise ValueError("times iterable is empty")
 
@@ -60,7 +52,7 @@ def ensure_datetime_array(
 
 
 def year_fractions(
-    times: Sequence[dt.date | dt.datetime],
+    times: Sequence[dt.date],
     day_count: float = 365.0,
 ) -> np.ndarray:
     """
@@ -73,16 +65,18 @@ def year_fractions(
 
     ordered = ensure_datetime_array(times)
     origin = ordered[0]
-    deltas: list[float] = []
-    for ts in ordered:
-        days = (ts - origin).total_seconds() / 86_400.0
-        deltas.append(days / day_count)
-    return np.array(deltas, dtype=float)
+    return np.array(
+        [
+            (ts - origin).total_seconds() / _SECONDS_PER_DAY / day_count
+            for ts in ordered
+        ],
+        dtype=float,
+    )
 
 
 def time_to_maturity(
-    pricing_date: dt.date | dt.datetime,
-    maturity: dt.date | dt.datetime,
+    pricing_date: dt.date,
+    maturity: dt.date,
     *,
     day_count: float = 365.0,
 ) -> float:
@@ -93,20 +87,9 @@ def time_to_maturity(
     if day_count <= 0:
         raise ValueError("day_count must be strictly positive")
 
-    dates = []
-    for value in (pricing_date, maturity):
-        if isinstance(value, dt.datetime):
-            dates.append(value)
-        elif isinstance(value, dt.date):
-            dates.append(dt.datetime.combine(value, dt.time()))
-        else:  # pragma: no cover
-            msg = (
-                "Unsupported time entry "
-                f"{value!r} (type {type(value).__name__})"
-            )
-            raise TypeError(msg)
-
-    delta_days = (dates[1] - dates[0]).total_seconds() / 86_400.0
+    start = _to_datetime(pricing_date)
+    end = _to_datetime(maturity)
+    delta_days = (end - start).total_seconds() / _SECONDS_PER_DAY
     if delta_days < 0:
         raise ValueError("maturity must be on or after pricing_date")
     return float(delta_days / day_count)

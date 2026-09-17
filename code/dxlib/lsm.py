@@ -17,8 +17,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from numpy.typing import NDArray
 
+# Run-from-source fallback: allows executing this module directly
+# (python code/dxlib/curves.py). It places the parent directory (code/)
+# on sys.path and sets __package__ so that relative imports resolve.
+# When dxlib is imported as a package from the project root, the guard
+# is False and the block is skipped entirely.
 if __name__ == "__main__" and __package__ is None:
     package_dir = Path(__file__).resolve().parent
     sys.path = [
@@ -35,7 +39,7 @@ from .processes import PathSimulator, build_time_grid
 
 __all__ = ["AmericanPutLSM", "lsm_american_put_from_paths"]
 
-FloatArray = NDArray[np.float64]
+from .types import FloatArray
 
 
 def _poly_basis(x: FloatArray, degree: int) -> FloatArray:

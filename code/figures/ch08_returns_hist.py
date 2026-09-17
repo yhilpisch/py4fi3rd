@@ -27,8 +27,10 @@ def main() -> None:
     )
 
     rng = np.random.default_rng(seed=42)
-    n = 500
-    rets = rng.normal(loc=0.0005, scale=0.01, size=n)
+    n = 200
+    steps = rng.normal(loc=0.0, scale=0.01, size=n)
+    prices = 100 * (1.0 + steps).cumprod()
+    rets = prices[1:] / prices[:-1] - 1.0
 
     fig, ax = plt.subplots(figsize=(7.5, 4))
     ax.hist(rets, bins=30, color="tab:gray", edgecolor="black", alpha=0.8)

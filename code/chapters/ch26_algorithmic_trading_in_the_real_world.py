@@ -27,7 +27,7 @@ def implementation_shortfall_example(
     slippage: float,
     infrastructure: float,
 ) -> pd.Series:
-    """Summarise how frictions reduce a gross expected return."""
+    """Summarize how frictions reduce a gross expected return."""
 
     net_alpha = gross_alpha - transaction_costs - slippage - infrastructure
     retention = net_alpha / gross_alpha if gross_alpha != 0.0 else np.nan

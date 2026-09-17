@@ -104,6 +104,9 @@ def setup_notebook(
     chapters_dir = code_dir / "chapters"
     figures_dir = code_dir / "figures"
     data_dir = project_root / "data"
+    mplconfig_dir = project_root / "_tmp" / "mplconfig"
+    mplconfig_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["MPLCONFIGDIR"] = str(mplconfig_dir)
 
     os.chdir(notebook_dir)
     for path in (project_root, code_dir, chapters_dir):

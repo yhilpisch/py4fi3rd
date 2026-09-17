@@ -21,7 +21,7 @@ from scipy import stats
 
 
 def main() -> None:
-    """Generate histograms and QQ plots for SPY and MSFT log returns."""
+    """Generate histograms and QQ plots for SPY and AAPL log returns."""
     mpl.style.use("seaborn-v0_8")
     mpl.rcParams.update(
         {

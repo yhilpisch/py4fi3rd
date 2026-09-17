@@ -109,7 +109,7 @@ def descriptive_statistics(array: Array) -> dict[str, float]:
 def portfolio_inputs(
     prices: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.Series, pd.DataFrame]:
-    """Return log returns plus annualised mean and covariance estimates."""
+    """Return log returns plus annualized mean and covariance estimates."""
 
     rets = log_returns(prices)
     mean_rets = rets.mean() * 252
@@ -118,13 +118,13 @@ def portfolio_inputs(
 
 
 def port_ret(weights: Array, mean_rets: pd.Series) -> float:
-    """Compute annualised expected portfolio return."""
+    """Compute annualized expected portfolio return."""
 
     return float(np.sum(mean_rets * weights))
 
 
 def port_vol(weights: Array, cov_matrix: pd.DataFrame) -> float:
-    """Compute annualised portfolio volatility."""
+    """Compute annualized portfolio volatility."""
 
     return float(np.sqrt(weights.T @ cov_matrix @ weights))
 

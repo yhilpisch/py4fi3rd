@@ -53,7 +53,7 @@ def main() -> None:
     ax.set_title("Two-Parameter Objective Function")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    ax.set_zlabel("f(x, y)")
+    ax.set_zlabel("f(x, y)", labelpad=12)
     fig.colorbar(surf, shrink=0.6, aspect=16)
 
     base_dir = pathlib.Path(__file__).resolve().parents[2]

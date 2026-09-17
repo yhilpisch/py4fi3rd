@@ -239,7 +239,7 @@ def performance_summary(
     equity: pd.Series,
     turnover: pd.Series,
 ) -> pd.Series:
-    """Summarise strategy performance with common backtest metrics."""
+    """Summarize strategy performance with common backtest metrics."""
 
     drawdown, longest_dd = drawdown_diagnostics(equity)
     ann_return = equity.iloc[-1] ** (TRADING_DAYS / len(return_net)) - 1.0

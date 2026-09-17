@@ -60,9 +60,10 @@ def main() -> None:
     ax.plot(
         x,
         y_clean,
-        color="black",
-        linewidth=1.8,
-        zorder=3,
+        color="0.35",
+        linewidth=1.2,
+        linestyle=":",
+        zorder=2,
         label="True term structure",
     )
     ax.scatter(

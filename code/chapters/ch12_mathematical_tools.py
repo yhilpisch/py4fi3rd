@@ -2,7 +2,7 @@
 Chapter 12 - Mathematical Tools.
 
 This companion module collects typed helpers for the chapter's recurring
-numerical patterns: regression, interpolation, optimisation,
+numerical patterns: regression, interpolation, optimization,
 integration, and symbolic work.
 
 (c) Dr. Yves J. Hilpisch

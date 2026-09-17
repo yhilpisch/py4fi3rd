@@ -80,13 +80,19 @@ def compute_portfolios(
     mu_annual = (1 + mu_daily) ** 252 - 1
     cov_annual = cov_daily * 252
 
+    # Shrink expected returns toward the benchmark's realized mean, exactly
+    # as in the chapter text (In [14]-In [16]).
+    mu_bench_annual = (1 + rets["SPY"].mean()) ** 252 - 1
+    mu_shrink = 0.5
+    mu_shrunk = mu_shrink * mu_annual + (1 - mu_shrink) * mu_bench_annual
+
     lam = 0.2
     diag_cov = np.diag(np.diag(cov_annual.values))
     cov_shrunk = lam * cov_annual.values + (1 - lam) * diag_cov
     cov_shrunk = pd.DataFrame(cov_shrunk, index=universe, columns=universe)
 
     Sigma = cov_shrunk.values
-    mu_vec = mu_annual.values
+    mu_vec = mu_shrunk.values
 
     w_mv_uncon = np.linalg.solve(Sigma, mu_vec)
     w_mv_uncon = w_mv_uncon / w_mv_uncon.sum()
