@@ -25,6 +25,7 @@ import sys
 import time
 import traceback
 from typing import Iterable
+import warnings
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -162,6 +163,7 @@ def run_script(path: Path, timeout: int) -> None:
         part for part in (code_root, current_pythonpath) if part
     )
     env.setdefault("MPLBACKEND", "Agg")
+    env.setdefault("PYTHONWARNINGS", "ignore")
     mplconfig_dir = ROOT / "_tmp" / "mplconfig"
     mplconfig_dir.mkdir(parents=True, exist_ok=True)
     env["MPLCONFIGDIR"] = str(mplconfig_dir)
@@ -202,8 +204,13 @@ def run_notebook(path: Path, timeout: int) -> None:
             "Notebook validation requires nbformat and nbclient."
         ) from exc
 
-    with path.open("r", encoding="utf8") as handle:
-        notebook = nbformat.read(handle, as_version=4)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message="Cell is missing an id field.*",
+        )
+        with path.open("r", encoding="utf8") as handle:
+            notebook = nbformat.read(handle, as_version=4)
 
     client = NotebookClient(
         notebook,
@@ -215,6 +222,7 @@ def run_notebook(path: Path, timeout: int) -> None:
 
 
 def run_validation(args: argparse.Namespace) -> None:
+    os.environ.setdefault("PYDEVD_DISABLE_FILE_VALIDATION", "1")
     validation_started = time.perf_counter()
     try:
         print(f"Colab-style validation root: {ROOT}", flush=True)
