@@ -140,13 +140,13 @@ def bootstrap() -> None:
 
     for module_name in ("assetlib", "engine", "dxlib"):
         module = importlib.import_module(module_name)
-        print(f"  import {module_name}: {module.__file__}")
+        print(f"  import {module_name}: {module.__file__}", flush=True)
 
     for filename in REQUIRED_DATA:
         path = DATA_ROOT / filename
         if not path.exists():
             raise FileNotFoundError(path)
-        print(f"  data {filename}: OK")
+        print(f"  data {filename}: OK", flush=True)
 
 
 def run_script(path: Path, timeout: int) -> None:
@@ -161,7 +161,6 @@ def run_script(path: Path, timeout: int) -> None:
     mplconfig_dir.mkdir(parents=True, exist_ok=True)
     env["MPLCONFIGDIR"] = str(mplconfig_dir)
 
-    print(f"  script {path.relative_to(ROOT)}")
     try:
         completed = subprocess.run(
             [sys.executable, str(path)],
@@ -175,18 +174,18 @@ def run_script(path: Path, timeout: int) -> None:
         )
     except subprocess.CalledProcessError as exc:
         if exc.stdout:
-            print(exc.stdout, end="")
+            print(exc.stdout, end="", flush=True)
         raise
     except subprocess.TimeoutExpired as exc:
         if exc.stdout:
             output = exc.stdout
             if isinstance(output, bytes):
                 output = output.decode(errors="replace")
-            print(output, end="")
+            print(output, end="", flush=True)
         raise
     else:
         if completed.stdout:
-            print(completed.stdout, end="")
+            print(completed.stdout, end="", flush=True)
 
 
 def run_notebook(path: Path, timeout: int) -> None:
@@ -201,7 +200,6 @@ def run_notebook(path: Path, timeout: int) -> None:
     with path.open("r", encoding="utf8") as handle:
         notebook = nbformat.read(handle, as_version=4)
 
-    print(f"  notebook {path.relative_to(ROOT)}")
     client = NotebookClient(
         notebook,
         timeout=timeout,
@@ -212,22 +210,52 @@ def run_notebook(path: Path, timeout: int) -> None:
 
 
 def run_validation(args: argparse.Namespace) -> None:
-    print(f"Colab-style validation root: {ROOT}")
+    print(f"Colab-style validation root: {ROOT}", flush=True)
+    print("Phase 1/3: bootstrap", flush=True)
     bootstrap()
 
     script_paths = [ROOT / path for path in args.script]
     if args.scripts:
         script_paths.extend(ROOT / path for path in DEFAULT_SCRIPTS)
-    for path in script_paths:
+    print(
+        f"Phase 2/3: scripts ({len(script_paths)} selected)",
+        flush=True,
+    )
+    for index, path in enumerate(script_paths, start=1):
+        print(
+            f"[scripts {index}/{len(script_paths)}] RUN "
+            f"{path.relative_to(ROOT)}",
+            flush=True,
+        )
         run_script(path, args.timeout)
+        print(
+            f"[scripts {index}/{len(script_paths)}] OK "
+            f"{path.relative_to(ROOT)}",
+            flush=True,
+        )
 
     notebook_patterns = list(args.notebook)
     if args.all_notebooks:
         notebook_patterns.extend(("*.ipynb", "labs/*.ipynb"))
-    for path in expand_notebooks(notebook_patterns):
+    notebook_paths = expand_notebooks(notebook_patterns)
+    print(
+        f"Phase 3/3: notebooks ({len(notebook_paths)} selected)",
+        flush=True,
+    )
+    for index, path in enumerate(notebook_paths, start=1):
+        print(
+            f"[notebooks {index}/{len(notebook_paths)}] RUN "
+            f"{path.relative_to(ROOT)}",
+            flush=True,
+        )
         run_notebook(path, args.timeout)
+        print(
+            f"[notebooks {index}/{len(notebook_paths)}] OK "
+            f"{path.relative_to(ROOT)}",
+            flush=True,
+        )
 
-    print("Colab-style validation: OK")
+    print("Colab-style validation: OK", flush=True)
 
 
 if __name__ == "__main__":
@@ -240,7 +268,10 @@ if __name__ == "__main__":
         with log_path.open("w", encoding="utf-8") as log_handle:
             with redirect_stdout(_Tee(sys.stdout, log_handle)):
                 with redirect_stderr(_Tee(sys.stderr, log_handle)):
-                    print(f"Colab-style validation log: {log_path}")
+                    print(
+                        f"Colab-style validation log: {log_path}",
+                        flush=True,
+                    )
                     try:
                         run_validation(args)
                     except BaseException:
