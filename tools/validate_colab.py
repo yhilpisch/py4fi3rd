@@ -22,6 +22,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 import traceback
 from typing import Iterable
 
@@ -66,6 +67,10 @@ class _Tee:
     def flush(self) -> None:
         self.console.flush()
         self.log_handle.flush()
+
+
+def format_duration(seconds: float) -> str:
+    return f"{seconds:.2f}s"
 
 
 def parse_args() -> argparse.Namespace:
@@ -210,52 +215,85 @@ def run_notebook(path: Path, timeout: int) -> None:
 
 
 def run_validation(args: argparse.Namespace) -> None:
-    print(f"Colab-style validation root: {ROOT}", flush=True)
-    print("Phase 1/3: bootstrap", flush=True)
-    bootstrap()
+    validation_started = time.perf_counter()
+    try:
+        print(f"Colab-style validation root: {ROOT}", flush=True)
+        print("Phase 1/3: bootstrap", flush=True)
+        bootstrap()
 
-    script_paths = [ROOT / path for path in args.script]
-    if args.scripts:
-        script_paths.extend(ROOT / path for path in DEFAULT_SCRIPTS)
+        script_paths = [ROOT / path for path in args.script]
+        if args.scripts:
+            script_paths.extend(ROOT / path for path in DEFAULT_SCRIPTS)
+        print(
+            f"Phase 2/3: scripts ({len(script_paths)} selected)",
+            flush=True,
+        )
+        for index, path in enumerate(script_paths, start=1):
+            relative_path = path.relative_to(ROOT)
+            print(
+                f"[scripts {index}/{len(script_paths)}] RUN {relative_path}",
+                flush=True,
+            )
+            item_started = time.perf_counter()
+            try:
+                run_script(path, args.timeout)
+            except BaseException:
+                print(
+                    f"[scripts {index}/{len(script_paths)}] FAILED "
+                    f"{relative_path} "
+                    f"(elapsed: {format_duration(time.perf_counter() - item_started)})",
+                    flush=True,
+                )
+                raise
+            print(
+                f"[scripts {index}/{len(script_paths)}] OK {relative_path} "
+                f"(elapsed: {format_duration(time.perf_counter() - item_started)})",
+                flush=True,
+            )
+
+        notebook_patterns = list(args.notebook)
+        if args.all_notebooks:
+            notebook_patterns.extend(("*.ipynb", "labs/*.ipynb"))
+        notebook_paths = expand_notebooks(notebook_patterns)
+        print(
+            f"Phase 3/3: notebooks ({len(notebook_paths)} selected)",
+            flush=True,
+        )
+        for index, path in enumerate(notebook_paths, start=1):
+            relative_path = path.relative_to(ROOT)
+            print(
+                f"[notebooks {index}/{len(notebook_paths)}] RUN {relative_path}",
+                flush=True,
+            )
+            item_started = time.perf_counter()
+            try:
+                run_notebook(path, args.timeout)
+            except BaseException:
+                print(
+                    f"[notebooks {index}/{len(notebook_paths)}] FAILED "
+                    f"{relative_path} "
+                    f"(elapsed: {format_duration(time.perf_counter() - item_started)})",
+                    flush=True,
+                )
+                raise
+            print(
+                f"[notebooks {index}/{len(notebook_paths)}] OK {relative_path} "
+                f"(elapsed: {format_duration(time.perf_counter() - item_started)})",
+                flush=True,
+            )
+    except BaseException:
+        print(
+            "Colab-style validation: FAILED "
+            f"(total elapsed: {format_duration(time.perf_counter() - validation_started)})",
+            flush=True,
+        )
+        raise
+
     print(
-        f"Phase 2/3: scripts ({len(script_paths)} selected)",
+        "Colab-style validation: OK "
+        f"(total elapsed: {format_duration(time.perf_counter() - validation_started)})",
         flush=True,
     )
-    for index, path in enumerate(script_paths, start=1):
-        print(
-            f"[scripts {index}/{len(script_paths)}] RUN "
-            f"{path.relative_to(ROOT)}",
-            flush=True,
-        )
-        run_script(path, args.timeout)
-        print(
-            f"[scripts {index}/{len(script_paths)}] OK "
-            f"{path.relative_to(ROOT)}",
-            flush=True,
-        )
-
-    notebook_patterns = list(args.notebook)
-    if args.all_notebooks:
-        notebook_patterns.extend(("*.ipynb", "labs/*.ipynb"))
-    notebook_paths = expand_notebooks(notebook_patterns)
-    print(
-        f"Phase 3/3: notebooks ({len(notebook_paths)} selected)",
-        flush=True,
-    )
-    for index, path in enumerate(notebook_paths, start=1):
-        print(
-            f"[notebooks {index}/{len(notebook_paths)}] RUN "
-            f"{path.relative_to(ROOT)}",
-            flush=True,
-        )
-        run_notebook(path, args.timeout)
-        print(
-            f"[notebooks {index}/{len(notebook_paths)}] OK "
-            f"{path.relative_to(ROOT)}",
-            flush=True,
-        )
-
-    print("Colab-style validation: OK", flush=True)
 
 
 if __name__ == "__main__":

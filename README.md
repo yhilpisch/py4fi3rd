@@ -89,8 +89,9 @@ from the companion-repository root:
 bash execute_validation.sh
 ```
 
-The default log is `colab-validation.log`. Override `VALIDATION_TIMEOUT`,
-`VALIDATION_LOG`, or `PYTHON_BIN` when needed.
+The default log is `colab-validation.log`. Each script and notebook reports its
+elapsed time, as do the two phases and the complete run. Override
+`VALIDATION_TIMEOUT`, `VALIDATION_LOG`, or `PYTHON_BIN` when needed.
 
 ## Disclaimer
 
