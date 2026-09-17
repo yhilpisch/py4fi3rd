@@ -116,8 +116,22 @@ def execute_script(
         )
         return True, None, time.perf_counter() - t0
     except subprocess.CalledProcessError as exc:
+        detail = exc.stderr
+        if isinstance(detail, bytes):
+            detail = detail.decode(errors="replace")
+        if detail:
+            detail = detail.strip()
+        if detail:
+            exc = RuntimeError(f"{exc}\nChild stderr:\n{detail}")
         return False, exc, time.perf_counter() - t0
     except subprocess.TimeoutExpired as exc:
+        detail = exc.stderr
+        if isinstance(detail, bytes):
+            detail = detail.decode(errors="replace")
+        if detail:
+            detail = detail.strip()
+        if detail:
+            exc = RuntimeError(f"{exc}\nChild stderr:\n{detail}")
         return False, exc, time.perf_counter() - t0
 
 

@@ -101,7 +101,7 @@ def granger_pvalues(
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        tests = grangercausalitytests(data, maxlag=max_lag, verbose=False)
+        tests = grangercausalitytests(data, maxlag=max_lag)
 
     lags = np.arange(1, max_lag + 1, dtype=int)
     pvals = np.array(
