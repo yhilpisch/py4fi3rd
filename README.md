@@ -86,7 +86,7 @@ For the complete command-line run with live progress and one combined log, execu
 from the companion-repository root:
 
 ```bash
-bash execute_validation.sh
+bash tools/execute_validation.sh
 ```
 
 The default log is `colab-validation.log`. Each script and notebook reports its
