@@ -82,6 +82,16 @@ files.download("/content/py4fi3rd-colab-validation.log")
 The optional TsTables workflow is not part of this base check and should be tested
 separately after its external dependencies have been deliberately provisioned.
 
+For the complete command-line run with live progress and one combined log, execute
+from the companion-repository root:
+
+```bash
+bash execute_validation.sh
+```
+
+The default log is `colab-validation.log`. Override `VALIDATION_TIMEOUT`,
+`VALIDATION_LOG`, or `PYTHON_BIN` when needed.
+
 ## Disclaimer
 
 This material is provided for educational and personal research use only.
