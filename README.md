@@ -39,6 +39,12 @@ resolve correctly. Some figure scripts may write local output under `assets/`;
 that directory is intentionally excluded from version control in this companion
 repo.
 
+The validated Colab dependency snapshot is recorded in `requirements.txt`.
+The companion code itself is not installed as a package; the local `code/`
+directory is placed on `PYTHONPATH` instead. The optional Chapter 10
+HDF5/PyTables workflow is included in the snapshot but is not required for the
+base validation run.
+
 ## Validation
 
 Use the validation helpers from the repository root:

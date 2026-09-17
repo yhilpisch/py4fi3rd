@@ -1,0 +1,24 @@
+# Colab validation baseline (Python 3.13.15; captured 2026-09-17).
+# The companion repository does not require package installation to run when
+# these dependencies are already present; this file records the validated
+# environment and can be used to reproduce it when desired.
+
+numpy==2.1.3
+pandas==2.2.3
+scipy==1.16.3
+matplotlib==3.10.0
+statsmodels==0.15.0
+scikit-learn==1.6.1
+torch==2.11.0
+sympy==1.14.0
+numba==0.61.2
+nbclient==0.10.4
+nbformat==5.11.1
+requests==2.32.4
+tqdm==4.67.3
+Cython==3.0.12
+
+# Optional Chapter 10 HDF5/PyTables workflow; not required by the base
+# Colab-style validation claim.
+tables==3.10.2
+h5py==3.16.0
