@@ -59,7 +59,10 @@ def features_and_targets(
     """Compute momentum features and forward-return targets."""
 
     mom_20d = rets.rolling(20).mean()
-    fwd_5d = rets.shift(-5).rolling(5).sum()
+    fwd_5d = (1.0 + rets).rolling(5).apply(
+        np.prod,
+        raw=True,
+    ).shift(-5) - 1.0
     aligned_index = mom_20d.index.intersection(fwd_5d.index)
     mom_20d = mom_20d.loc[aligned_index]
     fwd_5d = fwd_5d.loc[aligned_index]
@@ -69,14 +72,14 @@ def features_and_targets(
 def daily_ic(signal: pd.DataFrame, target: pd.DataFrame) -> pd.Series:
     """Compute a time series of daily Spearman rank information coefficients."""
 
-    rows = []
+    rows: dict[object, float] = {}
     for date, x in signal.iterrows():
         if date not in target.index:
             continue
         aligned_xy = pd.concat([x, target.loc[date]], axis=1).dropna()
         if len(aligned_xy) < 2:
             continue
-        rows.append(
+        rows[date] = (
             aligned_xy.iloc[:, 0].corr(
                 aligned_xy.iloc[:, 1],
                 method="spearman",

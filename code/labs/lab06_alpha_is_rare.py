@@ -57,8 +57,8 @@ def sharpe_ratio(returns: pd.Series) -> float:
 
 def max_drawdown(returns: pd.Series) -> float:
     """Compute maximum drawdown from a return stream."""
-    wealth = (1.0 + returns).cumprod()
-    drawdown = wealth / wealth.cummax() - 1.0
+    wealth = np.r_[1.0, (1.0 + returns).cumprod().to_numpy()]
+    drawdown = wealth / np.maximum.accumulate(wealth) - 1.0
     return float(drawdown.min())
 
 
@@ -110,14 +110,14 @@ def alpha_summary(returns: pd.DataFrame) -> pd.Series:
     beta = hf_index.cov(benchmark) / variance if variance != 0.0 else np.nan
     monthly_alpha = hf_index.mean() - beta * benchmark.mean()
     tracking_error = active.std(ddof=1) * np.sqrt(MONTHS_PER_YEAR)
-    active_annualized = (1.0 + active.mean()) ** MONTHS_PER_YEAR - 1.0
+    active_annualized = active.mean() * MONTHS_PER_YEAR
     return pd.Series(
         {
             "months": len(returns),
             "correlation": hf_index.corr(benchmark),
             "beta": beta,
             "monthly_alpha": monthly_alpha,
-            "annualized_alpha": (1.0 + monthly_alpha) ** MONTHS_PER_YEAR - 1.0,
+            "annualized_alpha": monthly_alpha * MONTHS_PER_YEAR,
             "tracking_error": tracking_error,
             "information_ratio": active_annualized / tracking_error,
             "up_capture": capture_ratio(

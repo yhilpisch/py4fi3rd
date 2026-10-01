@@ -54,10 +54,11 @@ class SignalEngine:
         return rets.rolling(window).std()  # rolling volatility
 
     def forward_returns(self, horizon: int = 5) -> pd.DataFrame:
-        """Forward-summed returns over the next `horizon` days."""
+        """Compounded returns over the next `horizon` days."""
 
         rets = self.returns
-        return rets.shift(-horizon).rolling(horizon).sum()  # forward sums
+        compounded = (1.0 + rets).rolling(horizon).apply(np.prod, raw=True)
+        return compounded.shift(-horizon) - 1.0
 
 
 def zscore(signal_df: pd.DataFrame) -> pd.DataFrame:
@@ -94,10 +95,10 @@ def information_coefficient(
         target_df,
         join="inner",
     )  # ensure aligned index/columns
-    rows = []
+    rows: dict[object, float] = {}
     for date, x in aligned_signal.iterrows():
         y = aligned_target.loc[date]  # matching targets
         if x.isna().any() or y.isna().any():
             continue
-        rows.append(x.rank().corr(y, method=method))  # cross-sectional IC
+        rows[date] = x.rank().corr(y, method=method)  # cross-sectional IC
     return pd.Series(rows, name="ic")

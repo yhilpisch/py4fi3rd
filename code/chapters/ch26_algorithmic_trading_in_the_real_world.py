@@ -83,7 +83,10 @@ def annualized_volatility(returns: pd.Series) -> float:
 def max_drawdown(returns: pd.Series) -> float:
     """Compute the maximum drawdown of a return series."""
 
-    equity = (1.0 + returns).cumprod()
+    equity = pd.concat(
+        [pd.Series([1.0]), (1.0 + returns).cumprod().reset_index(drop=True)],
+        ignore_index=True,
+    )
     drawdown = equity / equity.cummax() - 1.0
     return float(drawdown.min())
 
@@ -100,7 +103,8 @@ def sharpe_ratio(returns: pd.Series) -> float:
 def sortino_ratio(returns: pd.Series) -> float:
     """Compute a zero-rate Sortino ratio from monthly returns."""
 
-    downside = returns[returns < 0.0].std(ddof=0) * np.sqrt(12.0)
+    shortfall = np.minimum(returns.to_numpy(dtype=float), 0.0)
+    downside = float(np.sqrt(np.mean(shortfall**2)) * np.sqrt(12.0))
     if pd.isna(downside) or downside == 0.0:
         return float("nan")
     return annualized_return(returns) / float(downside)
@@ -140,7 +144,7 @@ def benchmark_diagnostics(data: pd.DataFrame, column: str) -> pd.Series:
     benchmark = data["spy"]
     beta = np.cov(series, benchmark, ddof=0)[0, 1] / np.var(benchmark, ddof=0)
     tracking_error = (series - benchmark).std(ddof=0) * np.sqrt(12.0)
-    active_ann_return = annualized_return(series) - annualized_return(benchmark)
+    active_ann_return = float((series - benchmark).mean() * 12.0)
     info_ratio = (
         active_ann_return / tracking_error if tracking_error > 0.0 else np.nan
     )

@@ -20,6 +20,8 @@ DATA_FILE = ROOT / "data" / "eod_data.csv"
 UNIVERSE = ["AAPL", "NVDA", "JPM", "SPY"]
 BENCHMARK = "SPY"
 TECH = ["AAPL", "NVDA"]
+ASSET_CAP = 0.375
+TECH_CAP = 0.25
 
 
 def load_returns(window: int = 2 * 252) -> tuple[pd.DataFrame, pd.Series]:
@@ -40,7 +42,7 @@ def estimate_moments(
     mu_daily = rets.mean()
     cov_daily = rets.cov()
 
-    mu_annual = (1.0 + mu_daily) ** 252 - 1.0
+    mu_annual = mu_daily * 252.0
     cov_annual = cov_daily * 252.0
 
     diag_cov = np.diag(np.diag(cov_annual.values))
@@ -50,7 +52,7 @@ def estimate_moments(
 
 
 def project_capped_simplex(w: np.ndarray, cap: float) -> np.ndarray:
-    """Project onto long-only, fully invested weights with a max cap."""
+    """Map to long-only, fully invested weights by proportional rescaling."""
     w = np.asarray(w, dtype=float).copy()
     w = np.clip(w, 0.0, None)
     if cap * len(w) < 1.0:
@@ -78,28 +80,45 @@ def project_capped_simplex(w: np.ndarray, cap: float) -> np.ndarray:
 
 
 def enforce_group_cap(
-    weights: pd.Series, group: list[str], cap: float
+    weights: pd.Series,
+    group: list[str],
+    cap: float,
+    asset_cap: float,
 ) -> pd.Series:
-    """Cap the total group weight and redistribute the excess."""
+    """Cap a group and redistribute excess without breaching asset caps."""
     out = weights.copy()
     group_weight = float(out[group].sum())
     if group_weight <= cap:
         return out
 
-    excess = group_weight - cap
     out[group] *= cap / group_weight
-
     other = [name for name in out.index if name not in group]
-    other_weight = float(out[other].sum())
-    if other_weight == 0.0:
-        out[other] = excess / len(other)
-    else:
-        out[other] += excess * out[other] / other_weight
-    return out / out.sum()
+    mass = 1.0 - float(out[group].sum())
+    if asset_cap * len(other) < mass - 1e-12:
+        raise ValueError("group and asset caps do not allow full investment")
+
+    remaining = other.copy()
+    base = weights[other].clip(lower=0.0)
+    out[other] = 0.0
+    while remaining:
+        total = float(base[remaining].sum())
+        if total == 0.0:
+            scaled = pd.Series(mass / len(remaining), index=remaining)
+        else:
+            scaled = base[remaining] * (mass / total)
+        over = scaled > asset_cap
+        if not over.any():
+            out[remaining] = scaled
+            break
+        capped = scaled.index[over].tolist()
+        out[capped] = asset_cap
+        remaining = [name for name in remaining if name not in capped]
+        mass = 1.0 - float(out.drop(index=remaining).sum())
+    return out
 
 
 def build_portfolios() -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
-    """Construct three portfolios and return market data for analysis."""
+    """Construct a tangency-style allocation and two feasible variants."""
     asset_rets, bench = load_returns()
     mu, Sigma = estimate_moments(asset_rets)
 
@@ -110,12 +129,17 @@ def build_portfolios() -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     long_only = uncon.clip(lower=0.0)
     long_only = long_only / long_only.sum()
     capped = pd.Series(
-        project_capped_simplex(long_only.values, cap=0.35),
+        project_capped_simplex(long_only.values, cap=ASSET_CAP),
         index=UNIVERSE,
         name="Asset cap",
     )
 
-    sector_capped = enforce_group_cap(capped, TECH, cap=0.25)
+    sector_capped = enforce_group_cap(
+        capped,
+        TECH,
+        cap=TECH_CAP,
+        asset_cap=ASSET_CAP,
+    )
     sector_capped.name = "Asset + tech cap"
 
     weights = pd.concat([uncon, capped, sector_capped], axis=1)

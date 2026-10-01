@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch import nn
 
@@ -117,14 +116,19 @@ def main() -> None:
         log_returns, window=WINDOW, horizon=HORIZON
     )
 
-    split = train_test_split(
-        X,
-        y,
-        dates,
-        test_size=0.3,
-        shuffle=False,
+    split_index = int(0.7 * len(X))
+    purge = HORIZON - 1
+    train_stop = split_index - purge
+    X_train, y_train, dates_train = (
+        X[:train_stop],
+        y[:train_stop],
+        dates[:train_stop],
     )
-    X_train, X_test, y_train, y_test, dates_train, dates_test = split
+    X_test, y_test, dates_test = (
+        X[split_index:],
+        y[split_index:],
+        dates[split_index:],
+    )
 
     # Standardize lagged-return windows based on the training data only.
     scaler = StandardScaler()

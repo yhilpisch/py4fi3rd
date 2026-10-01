@@ -32,7 +32,10 @@ else:
 def _max_drawdown(returns: pd.Series) -> float:
     """Maximum peak-to-trough drawdown of a cumulative return series."""
 
-    cum = (1.0 + returns).cumprod()
+    cum = pd.concat(
+        [pd.Series([1.0]), (1.0 + returns).cumprod().reset_index(drop=True)],
+        ignore_index=True,
+    )
     running_max = cum.cummax()
     drawdowns = cum / running_max - 1.0
     return float(drawdowns.min())
@@ -92,10 +95,10 @@ def performance_report(result: BacktestResult) -> PerformanceReport:
     )
 
     if te_ann != 0.0:
-        ir = (port_ann - bench_ann) / te_ann  # information ratio
+        ir = active.mean() * ann_factor / te_ann  # information ratio
     else:
         ir = np.nan
-    report["information_ratio"] = ir
+    report["information_ratio"] = [ir, np.nan]
     return PerformanceReport(table=report)
 
 

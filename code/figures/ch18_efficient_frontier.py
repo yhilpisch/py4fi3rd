@@ -59,10 +59,10 @@ def main() -> None:
     mu_daily = rets.mean()
     cov_daily = rets.cov()
 
-    mu_annual = (1.0 + mu_daily) ** 252 - 1.0
+    mu_annual = mu_daily * 252.0
     cov_annual = cov_daily * 252.0
 
-    mu_bench_annual = float((1.0 + r_bench.mean()) ** 252 - 1.0)
+    mu_bench_annual = float(r_bench.mean() * 252.0)
     shrink = 0.5
     mu_shrunk = shrink * mu_annual + (1.0 - shrink) * mu_bench_annual
     lam = 0.2
@@ -117,7 +117,7 @@ def main() -> None:
 
     ax.set_xlabel("Annualized volatility")
     ax.set_ylabel("Annualized expected return")
-    ax.set_title("Sample efficient frontier: equal-weight vs GMV")
+    ax.set_title("Random portfolios in risk–return space")
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(loc="best")
 

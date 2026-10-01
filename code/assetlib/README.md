@@ -84,7 +84,7 @@ The package root (`assetlib/__init__.py`) re-exports the main entry points:
 - `assetlib/signals.py`
   - `SignalEngine.momentum()`: rolling mean returns
   - `SignalEngine.volatility()`: rolling standard deviation of returns
-  - `SignalEngine.forward_returns()`: forward return target
+  - `SignalEngine.forward_returns()`: compounded forward-return target
   - `SignalEngine.zscore()`: cross-sectional z-scores per date
   - `SignalEngine.information_coefficient()`: daily cross-sectional IC series
 - `assetlib/portfolio.py`

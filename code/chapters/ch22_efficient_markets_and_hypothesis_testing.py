@@ -60,7 +60,7 @@ def regression_predictability(
     returns: pd.Series,
     max_lag: int = 5,
 ) -> pd.DataFrame:
-    """OLS regressions of returns on lagged returns, one per lag."""
+    """Lagged-return regressions with HAC inference, one per lag."""
 
     import statsmodels.api as sm
 
@@ -70,7 +70,10 @@ def regression_predictability(
         y = rets.iloc[lag:].values
         x_lag = rets.shift(lag).iloc[lag:].values
         X = sm.add_constant(x_lag)
-        model = sm.OLS(y, X).fit()
+        model = sm.OLS(y, X).fit(
+            cov_type="HAC",
+            cov_kwds={"maxlags": 5},
+        )
         results.append(
             {
                 "lag": lag,
@@ -123,10 +126,11 @@ def random_walk_ratio_variance(
     var_q = []
     for q in horizons:
         q_int = int(q)
-        if q_int < 2 or q_int > n:
+        n_complete = (n // q_int) * q_int
+        if q_int < 2 or n_complete < 2 * q_int:
             var_q.append(np.nan)
             continue
-        cum_rets = np.add.reduceat(rets, np.arange(0, n, q_int))
+        cum_rets = rets[:n_complete].reshape(-1, q_int).sum(axis=1)
         var_cum = float(np.var(cum_rets, ddof=1))
         var_q.append(var_cum / (q_int * float(np.var(rets, ddof=1))))
     return pd.DataFrame({"horizon": horizons, "variance_ratio": var_q})

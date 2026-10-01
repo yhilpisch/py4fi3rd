@@ -5,7 +5,7 @@ Companion code for key examples in Chapter 18:
 
 - estimation of annualized returns and covariances
 - shrinkage of expected returns and covariance matrix
-- GMV and constrained mean–variance portfolios
+- GMV and tangency-style portfolio heuristics
 - turnover between portfolios
 - asset-level risk contributions
 - simple two-factor model and factor risk decomposition
@@ -59,7 +59,7 @@ def estimate_inputs(
     mu_daily = rets[universe].mean()
     cov_daily = rets[universe].cov()
 
-    mu_annual = (1 + mu_daily) ** 252 - 1
+    mu_annual = mu_daily * 252
     cov_annual = cov_daily * 252
     r_bench = rets["SPY"]
     return mu_annual, cov_annual, r_bench
@@ -72,7 +72,7 @@ def shrink_inputs(
 ) -> tuple[pd.Series, pd.DataFrame]:
     """Apply simple shrinkage to expected returns and covariance matrix."""
 
-    mu_bench_annual = (1 + r_bench.mean()) ** 252 - 1
+    mu_bench_annual = r_bench.mean() * 252
     shrink = 0.5
     mu_shrunk = shrink * mu_annual + (1 - shrink) * mu_bench_annual
 
@@ -91,7 +91,7 @@ def project_capped_simplex(
     weights: np.ndarray,
     cap: float,
 ) -> np.ndarray:
-    """Project weights onto a long-only capped simplex."""
+    """Map weights to a long-only capped simplex by proportional rescaling."""
 
     weights = np.asarray(weights, dtype=float).copy()
     weights = np.clip(weights, 0.0, None)
@@ -134,7 +134,7 @@ def mean_variance_portfolios(
     cov_shrunk: pd.DataFrame,
     universe: list[str],
 ) -> tuple[pd.Series, pd.Series, pd.Series]:
-    """Compute unconstrained and constrained mean–variance portfolios."""
+    """Compute a tangency-style direction and heuristic feasible variants."""
 
     Sigma = cov_shrunk.values
     mu_vec = mu_shrunk.values

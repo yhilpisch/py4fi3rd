@@ -12,6 +12,7 @@ https://hilpisch.com | https://linktr.ee/dyjh
 from __future__ import annotations
 
 from itertools import count
+import math
 from typing import Any
 
 if __package__ in {None, ""}:
@@ -109,7 +110,7 @@ class PaperBroker:
             raise NotImplementedError("only market orders are implemented.")
         if order.side not in {"buy", "sell"}:
             raise ValueError("side must be either 'buy' or 'sell'.")
-        if order.quantity <= 0.0:
+        if not math.isfinite(order.quantity) or order.quantity <= 0.0:
             raise ValueError("quantity must be positive.")
 
         tick = self.last_tick.get(order.symbol)
@@ -144,6 +145,19 @@ class PaperBroker:
             if quantity is None
             else float(quantity)
         )  # default to full position size
+        if not math.isfinite(stop_quantity) or stop_quantity <= 0.0:
+            raise ValueError("stop quantity must be positive.")
+        if stop_quantity > abs(position.quantity) + 1e-12:
+            raise ValueError("stop quantity cannot exceed the open position.")
+
+        stop_price = float(stop_price)
+        if not math.isfinite(stop_price) or stop_price <= 0.0:
+            raise ValueError("stop price must be positive.")
+        tick = self.last_tick[symbol]
+        if position.quantity > 0.0 and stop_price >= tick.bid:
+            raise ValueError("a long-position stop must be below the current bid.")
+        if position.quantity < 0.0 and stop_price <= tick.ask:
+            raise ValueError("a short-position stop must be above the current ask.")
         order_id = f"STOP-{next(self._order_ids):06d}"
 
         stop_order = StopOrder(
@@ -151,7 +165,7 @@ class PaperBroker:
             symbol=symbol,
             side=side,
             quantity=stop_quantity,
-            stop_price=float(stop_price),
+            stop_price=stop_price,
         )
         self.stop_orders[symbol] = stop_order
         return {

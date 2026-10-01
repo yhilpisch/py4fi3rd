@@ -31,7 +31,7 @@ def load_returns(symbol: str = SYMBOL) -> pd.Series:
 
 def equity_curve(returns: pd.Series) -> pd.Series:
     """Compound simple returns into a normalized equity curve."""
-    return (1.0 + returns.fillna(0.0)).cumprod()
+    return (1.0 + returns.dropna()).cumprod()
 
 
 def annualized_sharpe(returns: pd.Series) -> float:
@@ -45,7 +45,8 @@ def annualized_sharpe(returns: pd.Series) -> float:
 def summarize_returns(returns: pd.Series) -> dict[str, float]:
     """Summarize terminal return, volatility, drawdown, and Sharpe ratio."""
     curve = equity_curve(returns)
-    drawdown = curve / curve.cummax() - 1.0
+    running_max = curve.cummax().clip(lower=1.0)
+    drawdown = curve / running_max - 1.0
     return {
         "terminal_return": float(curve.iloc[-1] - 1.0),
         "volatility": float(returns.std() * np.sqrt(TRADING_DAYS)),

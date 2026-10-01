@@ -12,6 +12,7 @@ https://hilpisch.com | https://linktr.ee/dyjh
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+import math
 from typing import Any
 
 import pandas as pd
@@ -40,6 +41,21 @@ class Tick:
     bid_size: float | None = None
     ask_size: float | None = None
     source: str = "historical"
+
+    def __post_init__(self) -> None:
+        self.timestamp = pd.Timestamp(self.timestamp)
+        if not self.symbol:
+            raise ValueError("symbol must not be empty")
+        if not math.isfinite(self.bid) or self.bid <= 0.0:
+            raise ValueError("bid must be finite and positive")
+        if not math.isfinite(self.ask) or self.ask <= 0.0:
+            raise ValueError("ask must be finite and positive")
+        if self.ask < self.bid:
+            raise ValueError("ask must be greater than or equal to bid")
+        sizes = (("bid_size", self.bid_size), ("ask_size", self.ask_size))
+        for name, size in sizes:
+            if size is not None and (not math.isfinite(size) or size < 0.0):
+                raise ValueError(f"{name} must be finite and non-negative")
 
     @property
     def mid(self) -> float:

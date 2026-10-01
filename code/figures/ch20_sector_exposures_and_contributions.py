@@ -47,7 +47,7 @@ def load_prices_and_holdings() -> tuple[pd.DataFrame, pd.DataFrame]:
 def sector_weights_and_contributions(
     prices: pd.DataFrame, holdings: pd.DataFrame, window_days: int = 2 * 252
 ) -> tuple[pd.Series, pd.Series]:
-    """Compute average sector weights and scaled contributions."""
+    """Compute average sector weights and linked return contributions."""
 
     symbols = holdings["symbol"].tolist()
     sub = prices[symbols].dropna(how="any")
@@ -58,20 +58,19 @@ def sector_weights_and_contributions(
 
     quantities = holdings.set_index("symbol")["quantity"]
     values = sub.mul(quantities, axis=1)
-    values = values.loc[rets_assets.index]
-    weights = values.div(values.sum(axis=1), axis=0)
+    start_values = values.shift(1).loc[rets_assets.index]
+    weights = start_values.div(start_values.sum(axis=1), axis=0)
 
     sector_map = holdings.set_index("symbol")["sector"]
     sector_weights_time = weights.T.groupby(sector_map).sum().T
     sector_weights = sector_weights_time.mean()
 
-    contrib = (weights * rets_assets).sum()
-    sector_contrib = contrib.groupby(sector_map).sum()
-
-    r_port = (weights * rets_assets).sum(axis=1)
-    total_port_return = float((1.0 + r_port).prod() - 1.0)
-    if total_port_return != 0.0:
-        sector_contrib = sector_contrib / total_port_return
+    daily_contrib = weights * rets_assets
+    daily_port = daily_contrib.sum(axis=1)
+    growth = (1.0 + daily_port).cumprod()
+    future_growth = float(growth.iloc[-1]) / growth
+    linked_contrib = daily_contrib.mul(future_growth, axis=0).sum()
+    sector_contrib = linked_contrib.groupby(sector_map).sum()
 
     return (
         sector_weights.sort_values(ascending=False),
@@ -100,7 +99,7 @@ def main() -> None:
     axes[0].grid(True, axis="y", linestyle="--", alpha=0.3)
 
     axes[1].bar(x, sector_c.values, color="tab:green")
-    axes[1].set_ylabel("Relative contribution")
+    axes[1].set_ylabel("Cumulative return contribution")
     axes[1].set_title("Sector contributions to performance")
     axes[1].grid(True, axis="y", linestyle="--", alpha=0.3)
 

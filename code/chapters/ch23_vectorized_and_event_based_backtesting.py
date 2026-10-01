@@ -154,6 +154,9 @@ def _run_signal_backtest(
 ) -> pd.DataFrame:
     """Run a single-asset backtest with explicit cash and units."""
 
+    if transaction_cost < 0.0:
+        raise ValueError("transaction_cost must be non-negative")
+
     cash = 1.0
     units = 0.0
     records: list[dict[str, float | pd.Timestamp]] = []
@@ -225,7 +228,8 @@ def vectorized_backtest(
 def drawdown_diagnostics(equity: pd.Series) -> Tuple[pd.Series, int]:
     """Compute the drawdown path and the longest drawdown period."""
 
-    drawdown = equity / equity.cummax() - 1.0
+    running_max = equity.cummax().clip(lower=1.0)
+    drawdown = equity / running_max - 1.0
     underwater = drawdown < 0.0
     groups = (underwater != underwater.shift(fill_value=False)).cumsum()
     dd_lengths = underwater.groupby(groups).sum()
@@ -244,8 +248,8 @@ def performance_summary(
     drawdown, longest_dd = drawdown_diagnostics(equity)
     ann_return = equity.iloc[-1] ** (TRADING_DAYS / len(return_net)) - 1.0
     ann_vol = return_net.std(ddof=0) * (TRADING_DAYS ** 0.5)
-    downside = return_net[return_net < 0.0]
-    downside_std = downside.std(ddof=0)
+    downside = return_net.clip(upper=0.0)
+    downside_std = float((downside.pow(2).mean()) ** 0.5)
     downside_vol = downside_std * (TRADING_DAYS ** 0.5)
 
     if return_net.std(ddof=0) > 0.0:
@@ -347,6 +351,8 @@ class EventBacktester:
         starting_cash: float = 1.0,
         transaction_cost: float = DEFAULT_TRANSACTION_COST,
     ) -> None:
+        if transaction_cost < 0.0:
+            raise ValueError("transaction_cost must be non-negative")
         self.account = Account(cash=starting_cash, position=0.0)
         self.transaction_cost = transaction_cost
         self.equity_curve: List[Tuple[pd.Timestamp, float]] = []

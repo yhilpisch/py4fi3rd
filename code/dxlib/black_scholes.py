@@ -117,7 +117,12 @@ def implied_vol_forward(
         option_type=opt,
         discount_factor=df,
     )
-    if target < intrinsic:
+    upper_bound = df * (float(forward) if opt == "call" else float(strike))
+    if target < intrinsic - tol:
+        raise ValueError("price is below the no-arbitrage lower bound")
+    if target > upper_bound + tol:
+        raise ValueError("price is above the no-arbitrage upper bound")
+    if target <= intrinsic + tol:
         return 0.0
 
     low = _SIGMA_FLOOR
@@ -156,4 +161,3 @@ def implied_vol_forward(
             low = mid
 
     return float(0.5 * (low + high))
-

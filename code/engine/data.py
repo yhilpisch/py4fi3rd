@@ -80,6 +80,11 @@ def make_tick(
 ) -> Tick:
     """Construct a bid-ask tick from a mid price and spread in basis points."""
 
+    if not np.isfinite(mid) or mid <= 0.0:
+        raise ValueError("mid must be finite and positive")
+    if not np.isfinite(spread_bps) or spread_bps < 0.0:
+        raise ValueError("spread_bps must be finite and non-negative")
+
     half_spread = mid * spread_bps / 10_000.0 / 2.0  # bps -> price spread
     return Tick(
         timestamp=pd.Timestamp(timestamp),
@@ -263,7 +268,16 @@ class GBMFeed:
         previous_timestamp: pd.Timestamp | None = None
         for timestamp in timestamps:
             if previous_timestamp is None:
-                dt = 1.0 / TRADING_DAYS  # sensible first-step fallback
+                if (
+                    isinstance(self.base_interval, str)
+                    and self.base_interval.upper().endswith("B")
+                ):
+                    dt = 1.0 / TRADING_DAYS
+                else:
+                    first_seconds = _to_timedelta(
+                        self.base_interval
+                    ).total_seconds()
+                    dt = max(first_seconds / SECONDS_PER_YEAR, 1e-12)
             else:
                 elapsed_seconds = (
                     pd.Timestamp(timestamp) - previous_timestamp

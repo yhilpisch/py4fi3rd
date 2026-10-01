@@ -62,6 +62,10 @@ def lsm_american_put_from_paths(
 ) -> dict[str, object]:
     """
     LSM valuation for an American put using pre-simulated spot paths.
+
+    The exercise rule and price are estimated on the same paths. The returned
+    ``stderr`` is therefore a conditional pathwise sampling diagnostic, not a
+    standard error for the fitted stopping policy.
     """
 
     if spot_paths.ndim != 2:
@@ -134,7 +138,9 @@ class AmericanPutLSM:
     Least-squares Monte Carlo (LSM) valuation for an American put option.
 
     The implementation follows Longstaff & Schwartz (2001) and uses polynomial
-    basis functions in the normalized state variable S_t / K.
+    basis functions in the normalized state variable S_t / K. The exercise
+    rule and price use the same paths, so ``stderr`` is a conditional pathwise
+    sampling diagnostic rather than full policy-estimation uncertainty.
     """
 
     process: PathSimulator

@@ -54,7 +54,7 @@ def estimate_mu_sigma(
     mu = rets.mean()  # daily mean
     cov = rets.cov()  # daily covariance
     ann = _ANNUALIZATION_FACTOR  # trading days per year
-    mu_annual = (1.0 + mu) ** ann - 1.0  # compounded
+    mu_annual = mu * ann  # annualized arithmetic expected returns
     cov_annual = cov * ann  # scaled covariance
     return RiskModel(mu_annual=mu_annual, cov_annual=cov_annual)  # bundle
 
@@ -71,7 +71,7 @@ def _project_capped_simplex(
     weights: np.ndarray,
     cap: float,
 ) -> np.ndarray:
-    """Project onto {w >= 0, sum(w) = 1, w_i <= cap}."""
+    """Map to capped long-only weights by proportional rescaling."""
 
     w = np.asarray(weights, dtype=float).copy()
     w = np.clip(w, 0.0, None)  # enforce long-only
@@ -105,8 +105,10 @@ def signal_tilt(
 ) -> pd.Series:
     """Map a cross-sectional signal into portfolio weights."""
 
-    if signal.isna().all():
-        raise ValueError("signal contains only NaNs")
+    if signal.empty:
+        raise ValueError("signal must not be empty")
+    if not np.isfinite(signal.to_numpy(dtype=float)).all():
+        raise ValueError("signal must contain only finite values")
 
     std = signal.std(ddof=0)  # cross-sectional dispersion
     if std:
@@ -124,14 +126,16 @@ def signal_tilt(
     if cap_per_asset is not None:
         if cap_per_asset <= 0.0:
             raise ValueError("cap_per_asset must be positive")
+        if not long_only:
+            raise ValueError(
+                "cap_per_asset is supported only for long-only weights"
+            )
         if long_only:
             capped = _project_capped_simplex(
                 weights.to_numpy(),
                 cap_per_asset,
             )  # respects the single-name cap
             weights = pd.Series(capped, index=weights.index)
-        else:
-            weights = weights.clip(upper=cap_per_asset)
 
     return weights.rename("weights")
 

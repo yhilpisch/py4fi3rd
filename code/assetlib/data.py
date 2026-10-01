@@ -65,7 +65,7 @@ class MarketData:
         """Compute daily simple returns for the selected symbols."""
 
         prices = self.select(symbols=symbols, dropna=dropna)  # aligned prices
-        rets = prices.pct_change()  # simple returns
+        rets = prices.pct_change(fill_method=None)  # simple returns
         if dropna:
             rets = rets.dropna(how="any")
         return rets

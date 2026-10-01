@@ -1,7 +1,7 @@
 """Python for Finance, 3rd ed., O'Reilly (2026).
 Chapter 18 - Portfolio Construction and Risk.
 
-Figure: Unconstrained vs constrained mean–variance portfolio weights.
+Figure: Tangency-style weights and heuristic feasible variants.
 
 (c) Dr. Yves J. Hilpisch
 AI-supported by various LLMs
@@ -40,10 +40,10 @@ def load_returns() -> tuple[pd.DataFrame, list[str]]:
 def compute_portfolios(
     rets: pd.DataFrame, universe: list[str]
 ) -> tuple[pd.Series, pd.Series, pd.Series]:
-    """Compute unconstrained and constrained mean–variance portfolios."""
+    """Compute a tangency-style direction and heuristic feasible variants."""
 
     def project_capped_simplex(w: np.ndarray, cap: float) -> np.ndarray:
-        """Project weights onto {w >= 0, sum(w)=1, w_i <= cap}."""
+        """Map weights to {w >= 0, sum(w)=1, w_i <= cap}."""
 
         w = np.asarray(w, dtype=float).copy()
         w = np.clip(w, 0.0, None)
@@ -77,12 +77,12 @@ def compute_portfolios(
     mu_daily = rets[universe].mean()
     cov_daily = rets[universe].cov()
 
-    mu_annual = (1 + mu_daily) ** 252 - 1
+    mu_annual = mu_daily * 252
     cov_annual = cov_daily * 252
 
     # Shrink expected returns toward the benchmark's realized mean, exactly
     # as in the chapter text (In [14]-In [16]).
-    mu_bench_annual = (1 + rets["SPY"].mean()) ** 252 - 1
+    mu_bench_annual = rets["SPY"].mean() * 252
     mu_shrink = 0.5
     mu_shrunk = mu_shrink * mu_annual + (1 - mu_shrink) * mu_bench_annual
 
@@ -143,7 +143,7 @@ def main() -> None:
     ax.set_xticks(x)
     ax.set_xticklabels(universe)
     ax.set_ylabel("Portfolio weight")
-    ax.set_title("Unconstrained vs constrained mean–variance weights")
+    ax.set_title("Tangency-style weights and feasible heuristics")
     ax.legend(loc="best")
     ax.grid(True, axis="y", linestyle="--", alpha=0.3)
 

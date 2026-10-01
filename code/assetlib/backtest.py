@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
+import numpy as np
 import pandas as pd
 
 if __package__ in {None, ""}:
@@ -66,8 +67,27 @@ class BacktestEngine:
         ----------
         target_weights:
             DataFrame indexed by rebalancing dates.
-            Weights on each date are assumed to sum to one.
+            Weights on each date must be finite and sum to one.
         """
+
+        if target_weights.empty:
+            raise ValueError("target_weights must not be empty")
+        missing = [
+            symbol
+            for symbol in self.universe
+            if symbol not in target_weights.columns
+        ]
+        if missing:
+            raise ValueError(f"target_weights missing symbols: {missing}")
+        supplied = target_weights.loc[:, self.universe]
+        if not np.isfinite(supplied.to_numpy(dtype=float)).all():
+            raise ValueError("target_weights must contain only finite values")
+        if not np.allclose(supplied.sum(axis=1).to_numpy(), 1.0, atol=1e-8):
+            raise ValueError("target weights must sum to one on every date")
+        if target_weights.index.has_duplicates:
+            raise ValueError("target_weights index must not contain duplicates")
+        if not target_weights.index.is_monotonic_increasing:
+            raise ValueError("target_weights index must be sorted")
 
         prices = self.market_data.select(
             self.universe + [self.benchmark],
@@ -85,14 +105,21 @@ class BacktestEngine:
         tw = target_weights.reindex(prices.index, method="ffill")  # daily grid
         tw = tw.loc[:, self.universe]  # only tradable symbols
 
-        rets = prices.pct_change().dropna()  # daily returns
+        rets = prices.pct_change(fill_method=None).dropna()  # daily returns
         asset_rets = rets[self.universe]  # asset return block
         tw_lagged = tw.shift().loc[rets.index]  # weights applied to returns
-        port_rets = (asset_rets * tw_lagged).sum(axis=1)  # portfolio series
+        port_rets = (asset_rets * tw_lagged).sum(
+            axis=1,
+            min_count=len(self.universe),
+        )  # portfolio series
         bench_rets = rets[self.benchmark]  # benchmark series
+        aligned = pd.concat(
+            {"portfolio": port_rets, "benchmark": bench_rets},
+            axis=1,
+        ).dropna()
 
         return BacktestResult(
-            dates=rets.index,
-            portfolio_returns=port_rets,
-            benchmark_returns=bench_rets,
+            dates=aligned.index,
+            portfolio_returns=aligned["portfolio"],
+            benchmark_returns=aligned["benchmark"],
         )

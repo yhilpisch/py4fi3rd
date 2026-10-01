@@ -103,7 +103,10 @@ def prepare_portfolio_inputs(
 def max_drawdown(returns: pd.Series) -> float:
     """Compute max drawdown from a return series."""
 
-    cum = (1.0 + returns).cumprod()
+    cum = pd.concat(
+        [pd.Series([1.0]), (1.0 + returns).cumprod().reset_index(drop=True)],
+        ignore_index=True,
+    )
     running_max = cum.cummax()
     drawdowns = cum / running_max - 1.0
     return float(drawdowns.min())
@@ -131,7 +134,7 @@ def performance_report(
     # Annualized tracking error and information ratio
     active = returns_port - returns_bench
     te_ann = float(active.std(ddof=1) * np.sqrt(ann_factor))
-    ir = port_ann - bench_ann
+    ir = float(active.mean() * ann_factor)
     if te_ann > 0.0:
         ir = ir / te_ann
     else:
@@ -174,22 +177,22 @@ def sector_contributions(
 
     symbols = holdings["symbol"].tolist()
     sub = prices[symbols].dropna(how="any")
-    rets_assets = sub.pct_change().dropna()
+    rets_assets = sub.pct_change().reindex(returns_port.index).dropna()
 
     values = sub.mul(holdings.set_index("symbol")["quantity"], axis=1)
-    values = values.loc[rets_assets.index]
-    weights = values.div(values.sum(axis=1), axis=0)
+    start_values = values.shift(1).loc[rets_assets.index]
+    weights = start_values.div(start_values.sum(axis=1), axis=0)
 
     sector_map = holdings.set_index("symbol")["sector"]
     sector_weights_time = weights.T.groupby(sector_map).sum().T
     sector_weights = sector_weights_time.mean()
 
-    contrib = (weights * rets_assets).sum()
-    sector_contrib = contrib.groupby(sector_map).sum()
-
-    total_port_return = float((1.0 + returns_port).prod() - 1.0)
-    if total_port_return != 0.0:
-        sector_contrib = sector_contrib / total_port_return
+    daily_contrib = weights * rets_assets
+    daily_port = daily_contrib.sum(axis=1)
+    growth = (1.0 + daily_port).cumprod()
+    future_growth = float(growth.iloc[-1]) / growth
+    linked_contrib = daily_contrib.mul(future_growth, axis=0).sum()
+    sector_contrib = linked_contrib.groupby(sector_map).sum()
 
     return (
         sector_weights.sort_values(ascending=False),
@@ -220,7 +223,7 @@ def main() -> None:
     print(sector_w.round(3))
     print()
 
-    print("== Sector contributions as share of total return ==")
+    print("== Linked sector contributions to total return ==")
     print(sector_c.round(3))
     print()
 
