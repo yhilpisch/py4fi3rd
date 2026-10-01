@@ -86,11 +86,19 @@ def main() -> None:
     boundary = _forward_fill_nan(boundary)
 
     fig, ax = plt.subplots(figsize=(7.8, 4.2))
-    ax.plot(time_grid, boundary, linewidth=1.6)
+    ax.plot(time_grid, boundary, linewidth=1.6, label="Estimated boundary")
+    ax.axhline(
+        K,
+        color="0.35",
+        linestyle="--",
+        linewidth=1.2,
+        label=f"Strike K = {K:g}",
+    )
     ax.set_title("Estimated Early-Exercise Boundary (American Put)")
     ax.set_xlabel("Time (years)")
     ax.set_ylabel("Exercise boundary level")
     ax.grid(True, linestyle="--", alpha=0.25)
+    ax.legend()
 
     fig.tight_layout()
     figures_dir = base_dir / "assets" / "figures"
@@ -102,4 +110,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -207,7 +207,7 @@ class JumpDiffusion:
             sqrt_poisson = np.sqrt(poisson.astype(float, copy=False))
             jump_exponent = (
                 poisson * self.jump_mean
-                + self.jump_std * sqrt_poisson * jump_normals
+                + self.jump_std * jump_normals * sqrt_poisson
             )
             jump_factor = np.exp(
                 jump_exponent
