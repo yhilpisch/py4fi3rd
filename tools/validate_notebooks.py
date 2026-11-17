@@ -4,7 +4,8 @@ Notebook Validation Helper
 
 Validate Jupyter notebooks in the ``notebooks/`` directory by checking JSON
 readability, basic notebook structure, and optional execution. This version is
-tailored to the book project and, by default, validates all chapter notebooks.
+tailored to the book project and, by default, validates chapter, appendix,
+and lab notebooks.
 
 Usage
   python tools/validate_notebooks.py
@@ -25,7 +26,7 @@ from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK_ROOT = ROOT / "notebooks"
-DEFAULT_PATTERNS = ["*.ipynb"]
+DEFAULT_PATTERNS = ["*.ipynb", "labs/*.ipynb"]
 BULLET = "  •"
 
 
@@ -49,7 +50,7 @@ def parse_args() -> argparse.Namespace:
         nargs="*",
         help=(
             "Notebook paths or glob patterns relative to notebooks/. "
-            "Defaults to *.ipynb."
+            "Defaults to *.ipynb and labs/*.ipynb."
         ),
     )
     parser.add_argument(

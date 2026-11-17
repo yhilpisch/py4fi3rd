@@ -58,8 +58,13 @@ python tools/validate_notebooks.py --skip-execute
 python tools/validate_notebooks.py ch15*.ipynb
 ```
 
-The code validator checks syntax, imported modules, and optionally executes scripts with a safe Matplotlib backend.
-The notebook validator checks JSON structure and optionally executes notebooks in place.
+The code validator checks syntax, imported modules, and optionally executes
+runnable chapter, figure, and lab scripts with a safe Matplotlib backend.
+Its default selection excludes the optional Chapter 11 native build helper;
+request that helper explicitly after configuring its OpenMP prerequisites.
+The notebook validator checks JSON structure and optionally executes all
+chapter, appendix, and lab notebooks in fresh kernels. Execution does not
+save outputs back to the notebook files.
 
 For a Colab-style check from a fresh runtime, run the repository directly from its
 checkout; no project package installation is required:

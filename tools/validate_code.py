@@ -5,7 +5,8 @@ Code Validation Helper
 Validate Python scripts in the ``code/`` directory by checking syntax,
 import availability, and optional execution. This version is tailored
 to the book project and, by default, validates both chapter examples
-and figure generators.
+and figure generators, plus the lab scripts. Native build helpers are only
+selected when explicitly requested.
 
 Usage
   python tools/validate_code.py
@@ -27,7 +28,7 @@ from typing import List, Sequence, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 CODE_ROOT = ROOT / "code"
-DEFAULT_PATTERNS = ["chapters/*.py", "figures/*.py"]
+DEFAULT_PATTERNS = ["chapters/ch*.py", "figures/*.py", "labs/*.py"]
 BULLET = "  •"
 
 if str(CODE_ROOT) not in sys.path:
@@ -146,7 +147,7 @@ def parse_args() -> argparse.Namespace:
         nargs="*",
         help=(
             "Code paths or glob patterns relative to code/. "
-            "Defaults to chapters/*.py and figures/*.py."
+            "Defaults to chapters/ch*.py, figures/*.py, and labs/*.py."
         ),
     )
     parser.add_argument(
